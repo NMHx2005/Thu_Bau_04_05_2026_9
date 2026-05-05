@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGNAL LOST — Night 1</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/phone.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/night.css" />
+  </head>
+  <body class="night-bedroom-page">
+    <div id="phase-explore">
+      <div class="explore-scene">
+        <div class="explore-inner">
+          <p class="explore-hint">Night 1 — Reconstruction</p>
+          <button class="hotspot hotspot--laptop" type="button" data-id="laptop" aria-label="Laptop"></button>
+          <button class="hotspot hotspot--window" type="button" data-id="window" aria-label="Window"></button>
+          <button class="hotspot hotspot--note" type="button" data-id="note" aria-label="Note"></button>
+          <button class="hotspot hotspot--photo" type="button" data-id="photo" aria-label="Photograph"></button>
+          <button class="hotspot hotspot--coat" type="button" data-id="coat" aria-label="Coat"></button>
+        </div>
+      </div>
+      <button type="button" class="explore-cta" id="btnToDial" disabled>Use the phone</button>
+    </div>
+
+    <div id="phase-dial" class="night-hidden">
+      <div class="dial-wrap">
+        <div class="dial-pad" aria-label="Dial pad">
+          <div class="dial-display" id="dialDisplay"></div>
+          <div class="dial-grid" id="dialGrid"></div>
+          <div class="dial-row-actions">
+            <button type="button" class="dial-btn" id="dialBack">delete</button>
+            <button type="button" class="dial-btn" id="dialCall">call</button>
+          </div>
+          <p style="margin-top: 14px; font-size: 0.7rem; color: #9898b0; text-align: center">
+            On the note: <span id="noteHint">04XX XXX XXX</span> — only the digits matter.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="phase-phone" class="night-hidden page-stage">
+      <div class="phone-frame">
+        <div class="phone-screen" id="phoneScreen">
+          <header class="phone-status">
+            <span class="phone-status__time">2:47 AM</span>
+            <span class="phone-status__battery" title="Battery"
+              ><span class="phone-status__battery-level"></span
+            ></span>
+          </header>
+          <div class="chat-header">
+            <div class="chat-header__avatar" aria-hidden="true"></div>
+            <div class="chat-header__name">Unknown</div>
+          </div>
+          <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+          <footer class="chat-choices" id="chatChoices" aria-label="Choices"></footer>
+          <div id="signalPanel" class="signal-panel night-hidden">
+            <p class="signal-glitch-title">LAST PLACE</p>
+            <p class="signal-subtitle">The last stop before you woke here.</p>
+            <div class="signal-canvas-wrap">
+              <canvas id="signalCanvas" width="400" height="220"></canvas>
+            </div>
+            <div class="signal-panel__label">
+              <span>Signal clarity</span>
+              <span id="signalPct">0%</span>
+            </div>
+            <input type="range" class="signal-slider" id="signalSlider" min="0" max="100" value="0" />
+            <button type="button" class="explore-cta" style="position: static; transform: none; margin: 16px auto 0; display: none" id="btnNight2">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loreHost"></div>
+
+    <script src="js/state.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/signalPuzzle.js"></script>
+    <script src="js/night1.js"></script>
+  </body>
+</html>

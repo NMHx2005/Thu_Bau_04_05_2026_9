@@ -1,0 +1,82 @@
+/* SIGNAL LOST — motion */
+
+/* §5.1 — slow, deliberate motion */
+
+@keyframes msg-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.msg-enter {
+  opacity: 0;
+  animation: msg-enter var(--motion-msg-duration, 0.85s) var(--motion-msg-ease, cubic-bezier(0.22, 1, 0.36, 1))
+    forwards;
+}
+
+.chat-log > .msg-enter:nth-child(1) {
+  animation-delay: 0.04s;
+}
+.chat-log > .msg-enter:nth-child(2) {
+  animation-delay: 0.14s;
+}
+.chat-log > .msg-enter:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.chat-log > .msg-enter:nth-child(4) {
+  animation-delay: 0.34s;
+}
+.chat-log > .msg-enter:nth-child(5) {
+  animation-delay: 0.44s;
+}
+.chat-log > .msg-enter:nth-child(6) {
+  animation-delay: 0.54s;
+}
+
+@keyframes typing-bounce {
+  0%,
+  85%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  45% {
+    transform: translateY(-4px);
+    opacity: 0.95;
+  }
+}
+
+.typing-dot:nth-child(1) {
+  animation: typing-bounce 1.35s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation: typing-bounce 1.35s ease-in-out infinite;
+  animation-delay: 0.18s;
+}
+
+.typing-dot:nth-child(3) {
+  animation: typing-bounce 1.35s ease-in-out infinite;
+  animation-delay: 0.36s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .typing-dot:nth-child(1),
+  .typing-dot:nth-child(2),
+  .typing-dot:nth-child(3) {
+    animation: none;
+    opacity: 0.7;
+  }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOT YET</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #1a1a2e;
+        color: #e8e8f0;
+        font-family: "Courier New", monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        text-align: center;
+      }
+      .box {
+        max-width: 30rem;
+        line-height: 1.6;
+      }
+      button {
+        margin-top: 18px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(108, 99, 255, 0.45);
+        background: rgba(108, 99, 255, 0.15);
+        color: #e8e8f0;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box" id="root">
+      <p id="p1"></p>
+      <p id="p2" style="color: #9898b0; font-size: 0.85rem"></p>
+      <div id="actions"></div>
+    </div>
+    <script src="js/state.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/ending.js"></script>
+    <script>
+      (function () {
+        var S = window.SignalLostState;
+        var round = S.getNotYetRound();
+        var phrases = window.SignalLostEnding.readPhrases();
+        var echo = phrases.length ? phrases[phrases.length - 1] : "the kettle clicking off in an empty kitchen.";
+
+        document.getElementById("p1").textContent =
+          round >= 1
+            ? "Second pass: you already chose not-yet once. The line won’t keep humoring the same dodge."
+            : "Not yet is a choice — but the tape remembers how many times you said it.";
+        document.getElementById("p2").textContent =
+          round >= 1
+            ? "If you end here again, you route to STATIC (low signal). This is the last branch before the tape runs out."
+            : echo;
+
+        var act = document.getElementById("actions");
+        act.innerHTML = "";
+
+        function goStatic() {
+          window.location.href = "ending-static.html";
+        }
+
+        if (round >= 1) {
+          var b = document.createElement("button");
+          b.textContent = "Let the tape run out (→ STATIC)";
+          b.onclick = goStatic;
+          act.appendChild(b);
+        } else {
+          var stay = document.createElement("button");
+          stay.textContent = "Stay longer (round 2)";
+          stay.onclick = function () {
+            S.setNotYetRound(1);
+            document.getElementById("p1").textContent =
+              "Round 2: choosing “Not yet again” routes to STATIC — not a punishment, just where weak signal goes.";
+            document.getElementById("p2").textContent =
+              "A small ordinary thing returns: rain mistaken for applause on the window.";
+            act.innerHTML = "";
+            var b2 = document.createElement("button");
+            b2.textContent = "Not yet again → STATIC";
+            b2.onclick = goStatic;
+            act.appendChild(b2);
+          };
+          var enough = document.createElement("button");
+          enough.textContent = "Enough (→ STATIC now)";
+          enough.style.marginLeft = "12px";
+          enough.onclick = goStatic;
+          act.appendChild(stay);
+          act.appendChild(enough);
+        }
+
+        if (window.SignalLostAudio) {
+          window.SignalLostAudio.resume();
+          window.SignalLostAudio.playEndingNotYetPing();
+        }
+      })();
+    </script>
+  </body>
+</html>

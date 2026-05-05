@@ -1,0 +1,14 @@
+/**
+ * SIGNAL LOST — jQuery UI sortable/handle colors to match phone palette.
+ * Load after jquery-ui.css on Night 2.
+ */
+.ui-sortable-helper {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.ui-sortable-placeholder {
+  visibility: visible !important;
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px dashed rgba(108, 99, 255, 0.55);
+  border-radius: 12px;
+  min-height: 3.5rem;
+}

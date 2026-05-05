@@ -1,0 +1,16 @@
+SIGNAL LOST — audio & image credits
+
+Built-in placeholders (replace with licensed Freesound/CC assets before final submission if required):
+
+  - notification.mp3 — project-generated placeholder (synthetic tones) — replace with CC0/CC-BY source
+  - typing.mp3 — project-generated placeholder — replace
+  - rain.mp3 — project-generated placeholder (filtered noise) — replace
+  - heartbeat.mp3 — project-generated placeholder — replace
+  - voicemail.mp3 — project-generated placeholder — replace
+
+  - LastLocation.png — project-generated placeholder (park bench silhouette / night gradient) — replace with final art
+
+Suggested sources (verify licence before use):
+  https://freesound.org — CC0 / CC-BY: soft notification, keyboard taps, rain ambience, heartbeat, voicemail tone.
+
+Bedroom.png / Card *.png / App_*.png / frame*.png — bundled project art (retain licence notes if sourced externally).

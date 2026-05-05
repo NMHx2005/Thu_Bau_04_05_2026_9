@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGNAL LOST — Prologue</title>
+    <link rel="stylesheet" href="css/prologue.css" />
+  </head>
+  <body class="prologue-root" id="prologueRoot">
+    <section class="prologue-slide is-active" data-slide="0" aria-label="Slide 1">
+      <p class="prologue-text prologue-text--fade"></p>
+    </section>
+    <section class="prologue-slide" data-slide="1" aria-label="Slide 2">
+      <p class="prologue-text"></p>
+    </section>
+    <section class="prologue-slide" data-slide="2" aria-label="Slide 3">
+      <p class="prologue-text"></p>
+    </section>
+    <section class="prologue-slide" data-slide="3" aria-label="Slide 4">
+      <p class="prologue-text"></p>
+    </section>
+    <p class="prologue-hint">click anywhere to continue</p>
+
+    <script src="js/state.js"></script>
+    <script>
+      (function () {
+        var slides = [
+          "Dark. Then: a rectangle of light.",
+          "Something familiar wakes before you do. A rectangle of light in a room you cannot name.",
+          "The rain is wrong—too steady, too close. The phone does not care. It only waits.",
+          "SIGNAL LOST",
+        ];
+        var root = document.getElementById("prologueRoot");
+        var sections = [].slice.call(document.querySelectorAll(".prologue-slide"));
+        var idx = 0;
+
+        if (window.SignalLostState) {
+          window.SignalLostState.resetGame();
+        }
+
+        function render() {
+          sections.forEach(function (sec, i) {
+            sec.classList.toggle("is-active", i === idx);
+            var p = sec.querySelector(".prologue-text");
+            p.textContent = slides[i];
+            if (i === idx && i > 0) {
+              p.classList.remove("prologue-text--fade");
+              void p.offsetWidth;
+              p.classList.add("prologue-text--fade");
+            }
+          });
+        }
+
+        function advance() {
+          if (idx >= sections.length - 1) {
+            window.location.href = "night1.html";
+            return;
+          }
+          idx++;
+          render();
+        }
+
+        root.addEventListener("click", advance);
+        render();
+      })();
+    </script>
+  </body>
+</html>

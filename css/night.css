@@ -1,0 +1,346 @@
+/* SIGNAL LOST — night scenes: exploration, dialpad, signal panel */
+
+.night-hidden {
+  display: none !important;
+}
+
+/* Blurred bedroom behind all night pages (match “index + phone” mood) */
+body.night-bedroom-page {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--bg, #1a1a2e);
+}
+
+body.night-bedroom-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #1a1a2e url("../assets/images/Bedroom.png") center / cover no-repeat;
+  /* Light blur so the room stays readable; phone UI still reads on top */
+  filter: blur(5px) brightness(0.62);
+  transform: scale(1.03);
+  pointer-events: none;
+}
+
+body.night-bedroom-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 42%,
+    rgba(26, 26, 46, 0.12) 0%,
+    rgba(26, 26, 46, 0.5) 62%,
+    rgba(10, 10, 18, 0.72) 100%
+  );
+}
+
+body.night-bedroom-page > *:not(#finOverlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fullscreen overlays above blurred layer (Night 3 interstitial, etc.) */
+#finOverlay.fin-overlay {
+  z-index: 60;
+}
+
+.night-bedroom-page .page-stage {
+  background: transparent;
+}
+
+.night-bedroom-page .dial-wrap {
+  background: transparent;
+}
+
+.explore-scene {
+  position: relative;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.explore-scene::after {
+  display: none;
+}
+
+.explore-inner {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.explore-hint {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(232, 232, 240, 0.55);
+  margin-bottom: 12px;
+}
+
+.hotspot {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  background: rgba(108, 99, 255, 0.06);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.hotspot:hover,
+.hotspot:focus-visible {
+  border-color: rgba(108, 99, 255, 0.55);
+  background: rgba(108, 99, 255, 0.12);
+  outline: none;
+}
+
+.hotspot--laptop {
+  left: 12%;
+  top: 52%;
+  width: 28%;
+  height: 22%;
+}
+.hotspot--window {
+  left: 4%;
+  top: 8%;
+  width: 38%;
+  height: 36%;
+}
+.hotspot--note {
+  left: 22%;
+  top: 58%;
+  width: 18%;
+  height: 14%;
+}
+.hotspot--photo {
+  left: 68%;
+  top: 12%;
+  width: 20%;
+  height: 24%;
+}
+.hotspot--coat {
+  left: 72%;
+  top: 48%;
+  width: 20%;
+  height: 32%;
+}
+
+.lore-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+  font-family: "Courier New", Courier, monospace;
+  color: #e8e8f0;
+}
+
+.lore-overlay__box {
+  max-width: 28rem;
+  line-height: 1.55;
+  font-size: 0.95rem;
+  border: 1px solid rgba(108, 99, 255, 0.35);
+  border-radius: 12px;
+  padding: 20px;
+  background: rgba(26, 26, 46, 0.95);
+}
+
+.explore-cta {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(108, 99, 255, 0.5);
+  background: rgba(108, 99, 255, 0.2);
+  color: #f0f0ff;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.explore-cta:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.dial-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse 80% 60% at 50% 20%, #2a2a48 0%, #1a1a2e 55%);
+}
+
+.dial-pad {
+  width: 100%;
+  max-width: 320px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(37, 37, 66, 0.95);
+  font-family: "Courier New", Courier, monospace;
+}
+
+.dial-display {
+  min-height: 2.5rem;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e8e8f0;
+  letter-spacing: 0.12em;
+  text-align: right;
+  font-size: 1.1rem;
+}
+
+.dial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.dial-btn {
+  padding: 14px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(108, 99, 255, 0.12);
+  color: #e8e8f0;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.dial-btn:hover {
+  border-color: rgba(108, 99, 255, 0.45);
+}
+
+.dial-row-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.signal-panel {
+  padding: 12px 14px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(26, 26, 46, 0.96);
+}
+
+.signal-panel__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #9898b0;
+  margin-bottom: 8px;
+}
+
+.signal-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  margin-bottom: 12px;
+}
+
+.signal-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.signal-slider {
+  width: 100%;
+  accent-color: #6c63ff;
+}
+
+.signal-glitch-title {
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: #e8e8f0;
+  text-shadow:
+    2px 0 rgba(255, 0, 80, 0.35),
+    -2px 0 rgba(0, 200, 255, 0.35);
+  margin-bottom: 4px;
+}
+
+.signal-subtitle {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: #9898b0;
+  line-height: 1.35;
+  padding: 0 8px;
+}
+
+/* Night 2 — memory cards: Card 1.png … Card 4.png + frame for slot 5 */
+.memory-card {
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(26, 26, 46, 0.92);
+}
+
+.memory-card__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.memory-card__img {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+.memory-card__meta {
+  flex: 1;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #e8e8f0;
+}
+
+.memory-card__meta strong {
+  display: block;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+.memory-slot--framed {
+  position: relative;
+  min-height: 104px;
+  padding: 22px 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: solid !important;
+  background-color: rgba(26, 26, 46, 0.45);
+  background-image: url("../assets/images/frame.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}

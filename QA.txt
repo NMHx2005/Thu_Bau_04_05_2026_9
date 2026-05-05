@@ -1,0 +1,51 @@
+SIGNAL LOST — manual QA matrix (trust T, clues C)
+
+Reset: open index.html (prologue calls resetGame — clears trust, clues, flags, phrases, notYetRound, reachedNight2).
+
+Night order guards (no skip):
+- night2.html: requires doneSignal1 (Night 1 signal puzzle completed). Else → night1.html.
+- night3.html: requires foundHiddenThread (archived thread opened in Notes or Browser in Night 2). Else → night2.html.
+
+Night 2 — hidden thread in-app:
+- After free-text + UNKNOWN follow-up, phase returns to Apps with banner; “Continue to Night 3” appears; “Continue” (to memory) is hidden.
+- Open Notes OR Browser → use “Open archived thread” / “Open draft sync thread”.
+- First open awards hidden clue (tryAwardClue idempotent) and enables “Continue to Night 3” if clue flag set.
+- Replay: opening thread again must not add a second hidden clue.
+
+Night 1 — rain / decode:
+- Rain fades when leaving for Night 2 (Continue after signal decode).
+- Decode prefers assets/images/LastLocation.png; falls back to Bedroom.png if missing.
+
+Routing (Night 3 after word puzzle Continue):
+- T>=7 and C>=3 → ending-found.html
+- T>=4 or C>=2 → ending-static.html
+- else → ending-notyet.html
+
+Boundary spot checks:
+1) T=3, C=3 → static (C>=2)
+2) T=7, C=2 → static (T>=4)
+3) T=7, C=3 → found
+4) T=3, C=1 → notyet
+
+Clue idempotency:
+- Replay Night 1 signal puzzle: clueCount must not increase twice (doneSignal1 flag).
+- Hidden thread: only one clue (foundHiddenThread flag).
+
+Voicemail lock:
+- trust < 5 → Voicemail app shows locked copy in Night 2.
+- trust >= 5 → shows unlock copy (audio reserved for SIGNAL FOUND).
+
+Dialpad:
+- Correct digits only: 0427318247 (spaces ignored).
+
+NOT YET (two-step, explicit routing copy):
+- First screen: “Stay longer (round 2)” sets notYetRound=1 and shows “Not yet again → STATIC”.
+- “Enough (→ STATIC now)” goes straight to ending-static.html.
+- If notYetRound>=1 on load: single button “Let the tape run out (→ STATIC)”.
+
+Audio (Web Audio when allowed):
+- Ambient (rain) vs SFX (notification/typing/tones) use separate GainNodes under master.
+- Endings call shared helpers in js/audio.js (found / static / not-yet ping).
+
+jQuery UI (Night 2):
+- css/jquery-overrides.css loads after jquery-ui.css; sortable placeholder matches palette.

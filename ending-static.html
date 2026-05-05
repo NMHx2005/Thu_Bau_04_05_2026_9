@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STATIC</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0a0a12;
+        color: #c8c8d8;
+        font-family: "Courier New", monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        transition: background-color 4s ease, color 4s ease;
+      }
+      body.end-static {
+        background-color: #000000;
+        color: #000000;
+      }
+      #tape {
+        max-width: 32rem;
+        line-height: 1.6;
+        opacity: 1;
+        transition: opacity 2.8s ease;
+      }
+      #tape.fade {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="tape">it's okay. they already know.</p>
+    <script src="js/state.js"></script>
+    <script src="js/audio.js"></script>
+    <script>
+      if (window.SignalLostAudio) {
+        window.SignalLostAudio.resume();
+        window.SignalLostAudio.playEndingStaticProfile();
+      }
+      setTimeout(function () {
+        document.getElementById("tape").classList.add("fade");
+      }, 2800);
+      setTimeout(function () {
+        document.body.classList.add("end-static");
+      }, 4200);
+    </script>
+  </body>
+</html>
