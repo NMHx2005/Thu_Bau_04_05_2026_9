@@ -3,59 +3,211 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SIGNAL LOST — Week 9 Snapshot</title>
+    <title>SIGNAL LOST — Night 2</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="css/jquery-overrides.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/phone.css" />
     <link rel="stylesheet" href="css/animations.css" />
     <link rel="stylesheet" href="css/night.css" />
     <style>
-      .week9-wrap {
-        height: 100vh;
+      .app-grid {
         display: grid;
-        place-items: center;
-        padding: 22px;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 20px;
       }
-      .week9-card {
-        width: min(520px, 100%);
+      .app-btn {
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 16px;
-        background: rgba(26, 26, 46, 0.92);
-        padding: 18px 16px;
+        padding: 16px;
+        background: rgba(37, 37, 66, 0.85);
+        color: #e8e8f0;
+        cursor: pointer;
+        text-align: center;
+        font-size: 0.75rem;
+      }
+      .app-btn img {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        margin-bottom: 8px;
+        display: inline-block;
+      }
+      .app-layer {
+        position: absolute;
+        inset: 0;
+        background: #1a1a2e;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+      }
+      .app-layer__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .app-body {
+        flex: 1;
+        overflow-y: auto;
+        font-size: 0.8rem;
+        line-height: 1.45;
         color: #e8e8f0;
       }
-      .week9-title {
-        margin: 0 0 10px;
-        font-size: 0.95rem;
-        letter-spacing: 0.12em;
+      .phone-screen {
+        position: relative;
       }
-      .week9-sub {
-        margin: 0 0 14px;
-        color: #9898b0;
-        font-size: 0.78rem;
-        line-height: 1.55;
-      }
-      .week9-actions {
+      .memory-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
         display: flex;
+        flex-direction: column;
         gap: 10px;
-        flex-wrap: wrap;
+      }
+      .memory-card {
+        border: 1px solid rgba(108, 99, 255, 0.45);
+        cursor: grab;
+      }
+      .memory-slot {
+        margin-top: 14px;
+        padding: 14px;
+        border: 2px dashed rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        text-align: center;
+        color: #9898b0;
+        font-size: 0.75rem;
+      }
+      .memory-rest {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #e8e8f0;
+        min-height: 1.2em;
+      }
+      .free-row {
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(26, 26, 46, 0.95);
+      }
+      .free-input {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #1a1a2e;
+        color: #e8e8f0;
+        font-family: "Courier New", monospace;
+        font-size: 0.8rem;
       }
     </style>
   </head>
   <body class="night-bedroom-page">
-    <div class="week9-wrap">
-      <div class="week9-card" role="region" aria-label="Week 9 snapshot">
-        <p class="week9-title">SIGNAL LOST — Week 9 snapshot</p>
-        <p class="week9-sub">
-          This snapshot stops after <strong>Night 1</strong> (exploration → dial → chat → signal decode).<br />
-          Content from later weeks (Night 2 apps/memory thread, Night 3 climax, endings) is intentionally removed.
-        </p>
-        <div class="week9-actions">
-          <button type="button" class="explore-cta" style="position: static; transform: none; margin: 0" onclick="location.href='night1.html'">
-            Replay Night 1
+    <div id="phase-apps" class="page-stage">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="phone-status">
+            <span class="phone-status__time">2:47 AM</span>
+            <span class="phone-status__battery"><span class="phone-status__battery-level"></span></span>
+          </header>
+          <div class="chat-header">
+            <div class="chat-header__avatar"></div>
+            <div class="chat-header__name">Unknown</div>
+          </div>
+          <div style="flex: 1; overflow: hidden; position: relative">
+            <p style="padding: 0 16px; font-size: 0.7rem; color: #9898b0">Apps</p>
+            <p id="appsBanner" class="night-hidden" style="padding: 0 16px; font-size: 0.7rem; color: #9898b0; line-height: 1.45" role="status" aria-live="polite"></p>
+            <div class="app-grid">
+              <button type="button" class="app-btn" data-app="photos">
+                <img src="assets/images/App_photo.png" alt="" onerror="this.style.display='none'" /> Photos
+              </button>
+              <button type="button" class="app-btn" data-app="notes">
+                <img src="assets/images/App_Note.png" alt="" onerror="this.style.display='none'" /> Notes
+              </button>
+              <button type="button" class="app-btn" data-app="browser">
+                <img src="assets/images/App_Browser.png" alt="" onerror="this.style.display='none'" /> Browser
+              </button>
+              <button type="button" class="app-btn" data-app="voicemail">
+                <img src="assets/images/App_Voicemail.png" alt="" onerror="this.style.display='none'" /> Voicemail
+              </button>
+            </div>
+            <div id="appLayer" class="app-layer night-hidden">
+              <div class="app-layer__top">
+                <button type="button" class="dial-btn" id="appClose">back</button>
+                <span id="appTitle" style="font-size: 0.75rem; letter-spacing: 0.15em">APP</span>
+                <span style="width: 48px"></span>
+              </div>
+              <div class="app-body" id="appBody" aria-live="polite"></div>
+            </div>
+          </div>
+          <button type="button" class="explore-cta" style="position: static; transform: none; margin: 12px auto" id="btnToMemory">
+            Continue
           </button>
-          <button type="button" class="dial-btn" onclick="location.href='index.html'">Restart (Prologue)</button>
         </div>
       </div>
     </div>
+
+    <div id="phase-memory" class="night-hidden page-stage">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="phone-status">
+            <span class="phone-status__time">2:47 AM</span>
+            <span class="phone-status__battery"><span class="phone-status__battery-level"></span></span>
+          </header>
+          <div class="chat-header">
+            <div class="chat-header__avatar"></div>
+            <div class="chat-header__name">Unknown</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 14px">
+            <p style="font-size: 0.75rem; color: #9898b0; margin-top: 0">March 3rd — put the memories in order.</p>
+            <ul class="memory-list" id="memoryList"></ul>
+            <div class="memory-slot memory-slot--framed" id="memoryFifth">what happened next</div>
+            <div class="memory-rest" id="memoryRest"></div>
+            <button type="button" class="explore-cta" style="position: static; transform: none; margin-top: 14px" id="btnVerifyMemory">
+              Lock order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="phase-chat" class="night-hidden page-stage">
+      <div class="phone-frame">
+        <div class="phone-screen" id="phoneScreen2">
+          <header class="phone-status">
+            <span class="phone-status__time">2:47 AM</span>
+            <span class="phone-status__battery"><span class="phone-status__battery-level"></span></span>
+          </header>
+          <div class="chat-header">
+            <div class="chat-header__avatar"></div>
+            <div class="chat-header__name">Unknown</div>
+          </div>
+          <div class="chat-log" id="chatLog2"></div>
+          <footer class="chat-choices" id="chatChoices2"></footer>
+          <div class="free-row">
+            <input type="text" class="free-input" id="freeInput" placeholder="Type a reply… Enter" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="js/state.js"></script>
+    <script>
+      (function () {
+        var S = window.SignalLostState;
+        if (!S || !S.canEnterNight2 || !S.canEnterNight2()) {
+          window.location.replace("night1.html");
+        }
+      })();
+    </script>
+    <script src="js/audio.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/night2.js"></script>
   </body>
 </html>

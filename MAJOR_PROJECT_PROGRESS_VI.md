@@ -1,165 +1,377 @@
-# SIGNAL LOST — Báo cáo tiến độ Major Project (Snapshot Tuần 9)
+# SIGNAL LOST — Tiến độ Tuần 9 (≈50% dự án final)
 
-- **Sinh viên**: Nguyen Hung
-- **Repo (snapshot tuần 9)**: `https://github.com/NMHx2005/Thu_Bau_04_05_2026_9.git`
-- **Thư mục dự án**: `signal-9/`
-- **Thời điểm chụp tiến độ**: 2026-05-05 (UTC+7)
+Tài liệu này được viết để **đọc lên và thuyết trình trực tiếp** trong buổi demo tuần 9. Mình viết **siêu chi tiết**, bám sát 3 tiêu chí chấm, có **kịch bản demo 5–7 phút**, file-map, và **Q&A** kèm câu trả lời gắn với source.
 
----
+### Mình sẽ show gì (phạm vi tuần 9)
 
-## 1. Tổng quan dự án (mình đã làm gì)
+Đến tuần 9, mình show được khoảng **50% scope của dự án final** (từ `signal-lost/`), thể hiện bằng **Đêm 1 + Đêm 2** trong snapshot này:
 
-**SIGNAL LOST (snapshot Tuần 9)** là một game kể chuyện tương tác chạy trong trình duyệt, được kể theo dạng giao diện điện thoại. Ở mốc này, phần chơi được tập trung vào **Đêm 1**. Trải nghiệm kết hợp:
+- **Explore** căn phòng bằng hotspot (mỗi hotspot mở 1 “lore overlay” ngắn)
+- **Dial** số điện thoại (validate input; “wrong number” vẫn có phản hồi narrative)
+- **Chat** với “Unknown” (typing/pacing + choices)
+- **1 puzzle** (signal decode trên canvas: kéo slider để lộ ảnh)
+- **Đêm 2 apps** (Photos/Notes/Browser/Voicemail) + vòng khám phá
+- **Đêm 2 memory ordering** (sortable timeline; milestone idempotent)
+- **Đêm 2 chat + 1 free-text reply**
+- **Lưu state** (trust/clues/flags trong localStorage; milestone idempotent)
 
-- **Chat theo kịch bản** (nhịp gõ chữ, lựa chọn, ảnh hưởng trust)
-- **Khám phá và puzzle** (canvas: giải mã tín hiệu)
-- **Lưu trạng thái** (localStorage: cờ tiến trình, trust/clues, text người chơi nhập)
-- **Âm thanh cơ bản** (rain ambience + SFX nhỏ)
-- **Điểm dừng rõ ràng** sau Đêm 1 (Night 2 chỉ là trang “dừng Tuần 9”, cố ý không có nội dung Tuần 11)
+### Những thứ chưa show ở tuần 9 (cố ý để tuần sau)
 
-Ý tưởng chính: câu chuyện *trông như đang nhắn tin với một người thật* trong UI điện thoại. Tuần 9 chủ yếu chứng minh hệ thống trình bày kịch bản + 1 vòng chơi hoàn chỉnh.
+- Hidden thread mechanic của Đêm 2 (nội dung Tuần 11)
+- Night 3 climax + puzzle bổ sung
+- Ending routing + endgame payoff sequences
 
----
-
-## 2. Mapping theo tiêu chí đánh giá (đúng rubric)
-
-### A) Phát triển graphic / interface / design elements
-
-Những gì thể hiện được:
-
-- **UI Phone OS (Đêm 1)**: hotspot exploration → dial pad → chat log + choices → signal decode panel.
-- **Puzzle canvas như yếu tố UI/interaction**: noise reveal (Đêm 1).
-- **Boundary Tuần 9 rõ ràng**: Night 2 là trang dừng checkpoint (không chứa feature Tuần 11).
-
-Artefact chính (Tuần 9):
-
-- `signal-9/night1.html` + `signal-9/js/night1.js` (loop tương tác Đêm 1)
-- `signal-9/js/chat.js` (script runner + choices)
-- `signal-9/js/signalPuzzle.js` (canvas puzzle giải mã tín hiệu)
-
-### B) Phát triển coding solutions “sophisticated”
-
-Vấn đề đã giải và cách giải:
-
-- **Chat runner tái sử dụng** cho nhịp và branching:
-  - `signal-9/js/chat.js` chạy queue step “unknown/player/choices/wait”, typing delay, và pacing multiplier.
-- **State persistence (Tuần 9 tối giản)**:
-  - Trust/clues và mốc hoàn thành Đêm 1 được lưu trong localStorage qua `signal-9/js/state.js`.
-- **Award clue theo kiểu idempotent**:
-  - Clue chỉ tăng 1 lần cho mỗi mốc (replay không được “farm” tiến trình).
-- **Âm thanh (Tuần 9 tối giản)**:
-  - `signal-9/js/audio.js` cung cấp rain ambience + SFX nhỏ để feedback tương tác.
-
-Bằng chứng (Tuần 9):
-
-- Snapshot chạy được trong `signal-9/` và demo end-to-end qua Đêm 1.
-
-### C) Khả năng trả lời câu hỏi về phần trình bày
-
-Mình đã chuẩn bị:
-
-- **Demo script ngắn** (Tuần 9) để trình bày UI + 1 puzzle + 1 thay đổi state.
-- **Bộ Q&A** (bên dưới) trả lời theo kiểu “how/why”, gắn với file và quyết định thiết kế.
+Lý do: tuần 9 tập trung chứng minh **core systems** (UI flow + script runner + puzzle integration + state).
 
 ---
 
-## 3. Mình đã hoàn thành gì đến Tuần 9 (midpoint check-in)
+## 1. Tổng quan dự án (dự án là gì)
 
-### 3.1 Tính năng đã có (Tuần 9)
+**SIGNAL LOST** là game kể chuyện tương tác chạy trên trình duyệt, trình bày theo dạng **UI điện thoại**. Câu chuyện được kể qua:
 
-- **Loop chơi được ở Đêm 1**
-  - Hotspot exploration + chat + choice ảnh hưởng trust.
-  - **Puzzle giải mã tín hiệu** (noise reveal) để lộ hình ảnh.
-- **Nền tảng state persistence**
-  - Trust/clues lưu localStorage.
-  - Cờ hoàn thành puzzle để tránh thưởng lại nhiều lần.
-- **Âm thanh cơ bản**
-  - Rain ambience + notification/typing cues (asset placeholder, có ghi trong `ATTRIBUTION.txt`).
+- **Chat** (nhịp gõ chữ, lựa chọn)
+- **Tương tác UI** (hotspot, dial pad)
+- **Puzzle** (cơ chế “tín hiệu” gắn chủ đề: mảnh ký ức bị nhiễu)
 
-### 3.2 Kịch bản demo Tuần 9 (5–7 phút)
+Tuần 9 mình xây xong “khung xương” để triển khai về sau và demo được mid-game loop:
 
-Mục tiêu: cho thấy **UI**, **1 cơ chế tương tác**, **1 hệ quả state**.
-
-1) Mở `signal-9/index.html` → giải thích prologue reset (chạy mới).
-2) Vào `night1.html` → show chat pacing + 1 choice thay đổi trust.
-3) Làm puzzle giải mã tín hiệu Đêm 1 → thấy ảnh lộ dần.
-4) Kết thúc Đêm 1 → sang Đêm 2 (nhắc guard chặn skip).
-
-### 3.3 Câu hỏi hay gặp ở Tuần 9 (và câu trả lời)
-
-- **Q: Choice ảnh hưởng câu chuyện thế nào?**  
-  **A:** Choice gắn trust delta; trust lưu localStorage và về sau ảnh hưởng voicemail lock text + ending routing (`js/state.js`, chat steps).
-
-- **Q: Puzzle làm ra sao?**  
-  **A:** Canvas vẽ noise + ảnh mục tiêu, input điều khiển mức reveal/opacity (`js/signalPuzzle.js`).
+- **Chat runner** tái sử dụng
+- **State tối thiểu nhưng đúng** (trust/clues + 1 milestone)
+- **Puzzle canvas** chứng minh khả năng kỹ thuật + đúng vibe
+- **Audio tối thiểu** để tạo không khí và feedback
 
 ---
 
-## 4. Kiến trúc kỹ thuật (để trả lời khi bị hỏi)
+## 2. Mapping tiêu chí chấm (rubric) — chi tiết từng ý
 
-### 5.1 Module chính
+### A) Development of graphic/interface/design elements
 
-- **Chat runner**: `signal-9/js/chat.js`  
-  Step queue “unknown/player/choices/wait”, delay, pacing theo đêm.
+#### A1) Ý tưởng UI: kể chuyện bằng “phone-like interface” (Đêm 1 + Đêm 2)
 
-- **State (Tuần 9 tối giản)**: `signal-9/js/state.js`  
-  localStorage keys cho trust/clues và mốc hoàn thành Đêm 1 (`doneSignal1`).
+Thầy/cô sẽ thấy:
 
-- **Night scripts**:
-  - `signal-9/js/night1.js`
+- **Explore scene** với hotspot (giống point-and-click).
+- **Dial pad** chuyển cảnh sang **phone chat UI**.
+- **Chat log** với header “Unknown”, bubble, choices.
+- **Signal panel**: canvas + slider + % “Signal clarity”.
 
-- **Puzzles**: `signal-9/js/signalPuzzle.js`  
-  Decode Đêm 1.
+Source liên quan:
 
-- **Audio (Tuần 9 tối giản)**: `signal-9/js/audio.js`  
-  Rain ambience + SFX đơn giản.
+- Layout Night 1: `signal-9/night1.html`
+- Layout Night 2: `signal-9/night2.html`
+- CSS: `signal-9/css/phone.css`, `signal-9/css/night.css`, `signal-9/css/base.css`, `signal-9/css/animations.css`
 
-### 5.2 Mô hình state (tóm tắt)
+Cách mình nói khi chỉ vào UI:
 
-- **Trust (T)**: 0–10, thay đổi bởi choice.
-- **Clues (C)**: tăng ở mốc Đêm 1 (`signal1`).
-- **Flag**: `doneSignal1` đánh dấu completion của snapshot Tuần 9.
+- “Mục tiêu thiết kế là người chơi cảm giác đang dùng điện thoại thật, không phải HUD game truyền thống.”
+- “Tuần 9 chứng minh UI transition liền mạch qua 2 đêm: explore → dial → chat → puzzle → apps → memory → chat/free-text.”
+
+#### A2) Micro-interactions: hành động nào cũng có feedback
+
+Mình làm:
+
+- Click hotspot → mở **lore overlay** ngắn, click để đóng (nhanh, không làm chậm nhịp).
+- Bấm dial pad → display update realtime; delete/call rõ ràng.
+- Choice trong chat → hiện button, sau khi chọn thì **echo lại vào chat log** để người chơi thấy “mình đã nói gì”.
+- Puzzle slider → update % label và reveal theo thời gian thực.
+- Đêm 2: mở/đóng app layer rõ ràng; khám phá đủ app mới được “Continue”.
+- Đêm 2: memory ordering drag-and-drop có placeholder/feel đồng nhất palette.
+
+Source:
+
+- Hotspot + overlay: `signal-9/js/night1.js` (`showLore`, `initExplore`)
+- Dial pad: `signal-9/js/night1.js` (`initDial`, `renderDial`)
+- Chat UI: `signal-9/js/chat.js`
+- Puzzle: `signal-9/js/signalPuzzle.js` + `signal-9/js/night1.js`
+- Đêm 2 apps/memory/chat: `signal-9/night2.html` + `signal-9/js/night2.js`
+
+Vì sao liên quan rubric:
+
+- Nó thể hiện tư duy UI/UX: người chơi luôn có **tín hiệu phản hồi** cho mỗi hành động, tránh cảm giác “bấm mà không biết có tác dụng không”.
+
+#### A3) Puzzle như một phần của UI kể chuyện (signal decode)
+
+Mô tả puzzle:
+
+- Canvas reveal ảnh dưới lớp noise, điều khiển bởi slider “Signal clarity”.
+- Cảm giác “tuning signal” đúng chủ đề hơn là puzzle kiểu toán.
+
+Source:
+
+- `signal-9/js/signalPuzzle.js`
+- Gọi puzzle: `signal-9/js/night1.js` (`startSignalDecode`)
+
+Lời thuyết trình gợi ý:
+
+- “Mình chọn puzzle dạng reveal vì SIGNAL LOST nói về việc ‘khôi phục’ mảnh ký ức bị nhiễu.”
 
 ---
 
-## 5. Bằng chứng chất lượng (test + tài liệu)
+### B) Development of sophisticated coding solutions to problems
 
-- Snapshot Tuần 9 được thiết kế để **demo sạch Đêm 1** và dừng có chủ đích ở Night 2.
+Tuần 9 “sophisticated” nằm ở **kiến trúc và quyết định thiết kế** để scale về sau (chứ không phải số lượng màn chơi).
+
+#### B1) Engine trình bày kịch bản: chat runner tái sử dụng
+
+Vấn đề:
+
+- Mình cần 1 cách chạy dialogue có pacing, choices, và dễ mở rộng sang các night khác.
+
+Giải pháp:
+
+- Xây **runner chạy theo step queue**: đưa vào danh sách step rồi chạy tuần tự.
+- Step type (tuần 9): `unknown`, `player`, `choices`, `wait`
+- Có pacing multiplier để chỉnh “feel” nhanh/chậm mà không rewrite từng line.
+
+Source:
+
+- `signal-9/js/chat.js`
+
+Câu nói khi bị hỏi:
+
+- “Chat runner là ‘runtime’ của narrative. Tuần 9 chứng minh runner chạy ổn; về sau chỉ thay script/opts.”
+
+#### B2) State persistence + milestone idempotent (tránh cộng điểm 2 lần) (Đêm 1 + Đêm 2)
+
+Vấn đề:
+
+- Reload/replay có thể làm tăng clue nhiều lần nếu không chặn, khiến logic hỏng.
+
+Giải pháp (tuần 9 đủ cho 50%):
+
+- Lưu:
+  - **Trust (T)**: tăng/giảm theo choice
+  - **Clues (C)**: tăng khi qua mốc lớn
+  - **Flag** `doneSignal1`: đánh dấu đã qua puzzle Đêm 1
+  - **Flag** `doneMemoryDrag`: đánh dấu đã qua mốc memory Đêm 2
+  - **Phrases**: list text (chuẩn bị cho cơ chế text về sau)
+- Award clue theo kiểu idempotent:
+  - `tryAwardClue("signal1")` trả về false nếu đã done.
+  - `tryAwardClue("memory")` trả về false nếu đã done.
+
+Source:
+
+- `signal-9/js/state.js`
+
+Câu nói:
+
+- “Tuần 9 mình giữ state ít nhưng đúng: lưu được, và không bị ‘farm clue’ khi replay.”
+
+#### B3) Validate input ở dial pad + wrong-number vẫn có narrative response
+
+Vấn đề:
+
+- Người chơi có thể nhập ký tự không phải số; cần so sánh digits-only.
+- Nếu sai số, vẫn cần phản hồi “diegetic” (đúng vibe), không được im lặng.
+
+Giải pháp:
+
+- Normalize dial input: bỏ ký tự không phải số.
+- So sánh với digits chuẩn `NOTE_PHONE_DIGITS`.
+- Wrong number có nhiều response (và có thể kèm tone) để vẫn là một “beat” của story.
+
+Source:
+
+- `signal-9/js/state.js` (`normalizeDialInput`, `isCorrectNoteNumber`)
+- `signal-9/js/night1.js` (`wrongNumberResponse`)
+
+#### B4) Audio tối thiểu (đủ cho demo, tránh over-scope)
+
+Vấn đề:
+
+- Autoplay policy của browser; audio phải nhẹ, không gây lỗi khi demo.
+
+Giải pháp:
+
+- API audio tối thiểu cho Night 1:
+  - `startRainLoop()` (ambient)
+  - `playTypingTick()` (feedback)
+  - `playNotification()` (cue)
+  - `playTone()` (fallback / tone)
+
+Source:
+
+- `signal-9/js/audio.js`
+
+Câu nói:
+
+- “Tuần 9 audio intentionally minimal: phục vụ atmosphere/feedback, không biến demo thành debug session.”
 
 ---
 
-## 6. Thống kê dự án (để đưa lên slide)
+### C) Ability to respond to questions about the presented work
 
-- Thống kê là phần optional ở Tuần 9; trọng tâm là loop Đêm 1 và cách trình bày kịch bản.
+Mình chuẩn bị để đáp ứng tiêu chí này:
+
+- **Demo script** có timebox rõ (5–7 phút)
+- **File-map** để trỏ code nhanh
+- **Q&A bank** dạng “why/how”, mỗi câu trả lời gắn vào file cụ thể
 
 ---
 
-## 7. Bộ Q&A (đúng rubric “respond to questions”)
+## 3. Kịch bản thuyết trình Tuần 9 (5–7 phút)
 
-### Thiết kế / UX
+### 3.1 Mở đầu (30s)
 
-- **Q: Tuần 9 demo UI gì?**  
-  **A:** UI Đêm 1: hotspots → dial pad → chat log + choices → signal decode panel (`night1.html`, `js/night1.js`).
+Nói:
+
+- “Đây là checkpoint tuần 9. Em sẽ demo vòng chơi Đêm 1 hoàn chỉnh: UI transitions, chat runner, 1 puzzle, và state persistence.”
+
+Làm:
+
+- Mở `signal-9/index.html`
+- Click qua prologue để vào Night 1
+
+### 3.2 Demo theo từng bước (4–5 phút)
+
+#### Bước A — Explore + lore overlay
+
+Làm:
+
+- Click 2–3 hotspot (laptop, window, note…)
+
+Nói:
+
+- “Hotspot mở lore overlay ngắn để xây tone và buộc người chơi tương tác trước khi mở phone.”
+
+Trỏ code:
+
+- `signal-9/js/night1.js` → `initExplore()`, `showLore()`
+
+#### Bước B — Dial pad + validate
+
+Làm:
+
+- Nhập 1 số sai → call → thấy phản hồi
+- Nhập đúng số từ note: **0427 318 247** → call
+
+Nói:
+
+- “Em chuẩn hoá input về digits-only. Sai số vẫn có narrative response, không bị ‘fail silently’.”
+
+Trỏ code:
+
+- `signal-9/js/state.js` → `normalizeDialInput()`, `isCorrectNoteNumber()`
+- `signal-9/js/night1.js` → `wrongNumberResponse()`
+
+#### Bước C — Chat runner + choices ảnh hưởng trust
+
+Làm:
+
+- Đợi Unknown nhắn
+- Chọn 1 option (tăng hoặc giảm trust)
+
+Nói:
+
+- “Chat chạy theo step queue. Choice sẽ echo vào chat log và cập nhật trust trong localStorage.”
+
+Trỏ code:
+
+- `signal-9/js/chat.js`
+- `signal-9/js/state.js` → `addTrust()`
+
+#### Bước D — Puzzle signal decode (canvas)
+
+Làm:
+
+- Kéo slider đến gần 100% để hoàn thành puzzle
+
+Nói:
+
+- “Puzzle này là canvas reveal, đúng chủ đề ‘tuning signal’. Hoàn thành sẽ award clue 1 lần.”
+
+Trỏ code:
+
+- `signal-9/js/signalPuzzle.js`
+- `signal-9/js/night1.js` → `startSignalDecode()` gọi `tryAwardClue(\"signal1\")`
+
+#### Bước E — Điểm dừng tuần 9
+
+Làm:
+
+Click “Continue” → tới `signal-9/night2.html` (Đêm 2 tiếp tục slice)
+
+#### Bước F — Đêm 2 apps → memory → chat → free text
+
+Làm:
+
+- Mở đủ 4 app (Photos/Notes/Browser/Voicemail), đóng app layer.
+- Continue → vào màn memory ordering, lock đúng thứ tự.
+- Vào chat, chọn 1 choice, rồi nhập 1 free-text reply và nhấn Enter.
+
+Nói:
+
+- “Đêm 2 mở rộng ‘ảo giác điện thoại’: apps + timeline ký ức kéo thả.”
+- “Sau mốc memory, script yêu cầu 1 free-text reply; text này được lưu để dùng cho các tuần sau.”
+- “Tuần 9 kết thúc ở đây; Tuần 11 sẽ bổ sung hidden thread + Night 3 + endings.”
+
+### 3.3 Kết (30–60s)
+
+Nói:
+
+- “Tuần 9 chứng minh core systems: UI flow, script runner, puzzle integration và state.”
+- “Sau khi nhận feedback, em sẽ mở rộng sang Night 2 systems và hướng tới milestone tuần 11.”
+
+---
+
+## 4. File-map (để trả lời Q&A nhanh)
+
+- Entry + reset: `signal-9/index.html`
+- Night 1 UI: `signal-9/night1.html`
+- Night 1 logic: `signal-9/js/night1.js`
+- Chat engine: `signal-9/js/chat.js`
+- State: `signal-9/js/state.js`
+- Puzzle: `signal-9/js/signalPuzzle.js`
+- Audio: `signal-9/js/audio.js`
+- Trang dừng tuần 9: `signal-9/night2.html`
+- Night 2 logic: `signal-9/js/night2.js`
+
+---
+
+## 5. Q&A dự đoán (và câu trả lời mẫu)
+
+### Design / UI
+
+- **Q: Tuần 9 đã hoàn thiện UI gì?**  
+  **A:** Hoàn thiện UI flow Đêm 1: explore hotspots → dial pad → chat UI → puzzle panel (canvas). Style thống nhất “phone theme” qua `night1.html` + `css/*`.
+
+- **Q: Vì sao chọn UI điện thoại?**  
+  **A:** Câu chuyện xoay quanh liên lạc/đứt gãy/tái dựng ký ức. UI điện thoại tạo cảm giác “diegetic” và làm “Unknown” hợp lý hơn trong trải nghiệm.
 
 ### Coding / kiến trúc
 
-- **Q: Làm sao tránh “farm clue” khi replay?**  
-  **A:** Mốc Đêm 1 (`signal1`) chỉ award 1 lần bằng cách kiểm tra flag `doneSignal1` trong `signal-9/js/state.js`.
+- **Q: Vì sao làm chat runner thay vì hardcode thoại?**  
+  **A:** Hardcode không scale. Runner giúp pacing/choices nhất quán, và night scripts gọn hơn (`signal-9/js/chat.js`).
 
-- **Q: Vì sao dùng Web Audio gain nodes thay vì chỉ chỉnh volume `<audio>`?**  
-  **A:** Ở Tuần 9 mình giữ audio tối giản (rain + SFX nhỏ) để phục vụ demo loop mà không cần thêm hệ thống (`signal-9/js/audio.js`).
+- **Q: Làm sao tránh replay cộng clue 2 lần?**  
+  **A:** Lưu các flag (`doneSignal1`, `doneMemoryDrag`) và dùng `tryAwardClue(\"signal1\")` / `tryAwardClue(\"memory\")` để mỗi mốc chỉ award 1 lần (`signal-9/js/state.js`).
 
-## 8. Dự kiến cho các tuần sau (không có trong snapshot này)
+- **Q: Dial input làm sao cho robust?**  
+  **A:** Normalize về digits-only (`normalizeDialInput`) rồi so với `NOTE_PHONE_DIGITS`, nên dấu cách/ký tự lạ không làm hỏng check (`signal-9/js/state.js`).
 
-- Night 2 apps + memory ordering + hidden thread (mechanic lore)
-- Night 3 climax + thêm puzzle
-- Routing endings và payoff
+- **Q: Vì sao puzzle dùng canvas?**  
+  **A:** Canvas cho phép blend noise + reveal realtime, hợp chủ đề “signal clarity” hơn việc đổi ảnh tĩnh (`signal-9/js/signalPuzzle.js`).
+
+### Process / tiến độ
+
+- **Q: Sau tuần 9 sẽ làm gì?**  
+  **A:** Mở rộng sang Night 2 systems (apps layer/memory ordering/đào sâu state) và hướng tới milestone tuần 11 (climax + endings).
 
 ---
 
-## 9. Nếu có thêm thời gian (hướng nâng cấp)
+## 6. Checklist Tuần 9 (những thứ mình chắc chắn claim được)
 
-- Thay asset placeholder bằng asset có license CC0/CC-BY phù hợp và cập nhật `ATTRIBUTION.txt`.
-- Thêm tuỳ chọn accessibility: giảm motion/typing speed, cải thiện keyboard focus.
-- (Bản debug nội bộ) thêm toggle hiển thị T/C và flags để QA nhanh hơn.
+- Chạy được vòng Night 1 từ `index.html` → kết thúc ở `night2.html` (trang dừng)
+- Chat runner chạy ổn, choice ảnh hưởng trust và persist
+- 1 puzzle canvas tích hợp vào narrative flow
+- State persist + idempotent milestone (không farm)
+- Audio tối thiểu: ambience + feedback
+
+---
+
+## 7. Dự kiến cho Tuần 11 (không có trong snapshot này)
+
+- Night 2: apps layer + memory ordering + narrative mechanic sâu hơn
+- Night 3: climax pacing + thêm puzzle
+- Routing endings/payoffs và polish tổng thể
 

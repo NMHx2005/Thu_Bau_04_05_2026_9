@@ -1,6 +1,7 @@
 /**
- * SIGNAL LOST — Week 9 snapshot state
- * Minimal persistence for Night 1 demo (trust, clues, doneSignal1, phrases).
+ * SIGNAL LOST — Week 9 (≈50%) state
+ * Keeps Night 1 + Night 2 (apps + memory + chat + free text).
+ * Exposes window.SignalLostState for vanilla HTML pages.
  */
 (function () {
   "use strict";
@@ -8,6 +9,7 @@
   var STORAGE_TRUST = "signalLost_trust";
   var STORAGE_CLUES = "signalLost_clues";
   var STORAGE_DONE_SIGNAL1 = "signalLost_doneSignal1";
+  var STORAGE_DONE_MEMORY = "signalLost_doneMemoryDrag";
   var STORAGE_PHRASES = "signalLost_phrases";
 
   var TRUST_MIN = 0;
@@ -17,6 +19,9 @@
 
   /** Dial this (digits only for comparison) — matches note copy in Night 1. */
   var NOTE_PHONE_DIGITS = "0427318247";
+
+  /** Voicemail app unlocks when trust reaches this (Week 9: copy-only). */
+  var VOICEMAIL_TRUST_THRESHOLD = 5;
 
   function clamp(n, min, max) {
     if (n < min) return min;
@@ -76,13 +81,32 @@
     setBool(STORAGE_DONE_SIGNAL1, v);
   }
 
-  /** Week 9: only signal1 clue exists. Returns true if a clue was added. */
+  function getDoneMemoryDrag() {
+    return readBool(STORAGE_DONE_MEMORY);
+  }
+
+  function setDoneMemoryDrag(v) {
+    setBool(STORAGE_DONE_MEMORY, v);
+  }
+
+  /**
+   * Award +1 clue once per milestone kind. Returns true if a clue was added.
+   * Week 9 (≈50%): 'signal1' | 'memory'
+   */
   function tryAwardClue(kind) {
-    if (kind !== "signal1") return false;
-    if (getDoneSignal1()) return false;
-    setDoneSignal1(true);
-    addClue();
-    return true;
+    if (kind === "signal1") {
+      if (getDoneSignal1()) return false;
+      setDoneSignal1(true);
+      addClue();
+      return true;
+    }
+    if (kind === "memory") {
+      if (getDoneMemoryDrag()) return false;
+      setDoneMemoryDrag(true);
+      addClue();
+      return true;
+    }
+    return false;
   }
 
   function getPhrases() {
@@ -114,10 +138,19 @@
     return normalizeDialInput(dialString) === NOTE_PHONE_DIGITS;
   }
 
+  function canUnlockVoicemail() {
+    return getTrust() >= VOICEMAIL_TRUST_THRESHOLD;
+  }
+
+  function canEnterNight2() {
+    return getDoneSignal1();
+  }
+
   function resetGame() {
     localStorage.removeItem(STORAGE_TRUST);
     localStorage.removeItem(STORAGE_CLUES);
     localStorage.removeItem(STORAGE_DONE_SIGNAL1);
+    localStorage.removeItem(STORAGE_DONE_MEMORY);
     localStorage.removeItem(STORAGE_PHRASES);
   }
 
@@ -130,10 +163,14 @@
     resetGame: resetGame,
     tryAwardClue: tryAwardClue,
     getDoneSignal1: getDoneSignal1,
+    getDoneMemoryDrag: getDoneMemoryDrag,
     getPhrases: getPhrases,
     addPhrase: addPhrase,
     normalizeDialInput: normalizeDialInput,
     isCorrectNoteNumber: isCorrectNoteNumber,
     NOTE_PHONE_DIGITS: NOTE_PHONE_DIGITS,
+    VOICEMAIL_TRUST_THRESHOLD: VOICEMAIL_TRUST_THRESHOLD,
+    canUnlockVoicemail: canUnlockVoicemail,
+    canEnterNight2: canEnterNight2,
   };
 })();
