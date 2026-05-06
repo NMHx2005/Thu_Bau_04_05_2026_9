@@ -19,27 +19,27 @@
     laptop: {
       title: "The Unsent Draft",
       text: "A half-written unsent message — cursor still blinking. The player has been trying to say something and could not finish it.",
-      img: "assets/images/obj_laptop.png",
+      img: "assets/images/night1/obj_laptop.png",
     },
     window: {
       title: "No Reflection",
       text: "Rain on the glass, but no reflection. A planted clue — most players read it as an art style choice on first playthrough and only catch it on replay.",
-      img: "assets/images/obj_window.png",
+      img: "assets/images/night1/obj_window.png",
     },
     note: {
       title: "The Number",
       text: "A handwritten phone number, slightly smudged. 0427 318 247. This is the number the player will dial.",
-      img: "assets/images/obj_note.png",
+      img: "assets/images/night1/obj_note.png",
     },
     photo: {
       title: "The Photograph",
       text: "A blurred image of a person. Warm frame. The face is almost recognisable — but not quite.",
-      img: "assets/images/obj_photo.png",
+      img: "assets/images/night1/obj_photo.png",
     },
     coat: {
       title: "Still Warm",
       text: "Still warm by the door. If you read this before you call, Unknown will remember.",
-      img: "assets/images/obj_coat.png",
+      img: "assets/images/night1/obj_coat.png",
     },
   };
 
