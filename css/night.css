@@ -38,7 +38,7 @@ body.night-bedroom-page::after {
   );
 }
 
-body.night-bedroom-page > *:not(#finOverlay):not(#blinkOverlay):not(#objLightbox):not(#loreHost) {
+body.night-bedroom-page > *:not(#finOverlay):not(#blinkOverlay):not(#eyeLidTop):not(#eyeLidBottom):not(#objLightbox):not(#loreHost) {
   position: relative;
   z-index: 1;
 }
@@ -292,27 +292,78 @@ body.night-bedroom-page > *:not(#finOverlay):not(#blinkOverlay):not(#objLightbox
   padding: 0 8px;
 }
 
-/* ─── Wakeup blink overlay ─────────────────────────────────────────── */
+/* ─── Eyelid overlays (shared by Night 1 + Night 2) ─────────────── */
 
-#blinkOverlay {
+#eyeLidTop,
+#eyeLidBottom {
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   background: #000;
   pointer-events: none;
-  animation: eyeBlink 2.8s ease forwards;
+  height: 51vh; /* 1px overlap at centre to avoid hairline gap */
 }
 
-@keyframes eyeBlink {
-  0%   { opacity: 1; }
-  10%  { opacity: 0.15; }
-  14%  { opacity: 1; }
-  28%  { opacity: 1; }
-  32%  { opacity: 0.25; }
-  40%  { opacity: 1; }
-  54%  { opacity: 1; }
-  70%  { opacity: 0; }
-  100% { opacity: 0; }
+#eyeLidTop    { top: 0; }
+#eyeLidBottom { bottom: 0; }
+
+/* ── Night 1: three quick blinks then open (2.8s) ── */
+#eyeLidTop {
+  animation: eyeLidTopBlink 2.8s ease forwards;
+}
+#eyeLidBottom {
+  animation: eyeLidBottomBlink 2.8s ease forwards;
+}
+
+@keyframes eyeLidTopBlink {
+  0%   { transform: translateY(0); }
+  10%  { transform: translateY(-65%); }
+  14%  { transform: translateY(0); }
+  28%  { transform: translateY(0); }
+  32%  { transform: translateY(-52%); }
+  40%  { transform: translateY(0); }
+  54%  { transform: translateY(0); }
+  72%  { transform: translateY(-100%); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes eyeLidBottomBlink {
+  0%   { transform: translateY(0); }
+  10%  { transform: translateY(65%); }
+  14%  { transform: translateY(0); }
+  28%  { transform: translateY(0); }
+  32%  { transform: translateY(52%); }
+  40%  { transform: translateY(0); }
+  54%  { transform: translateY(0); }
+  72%  { transform: translateY(100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ── Night 2: single slow open (2.2s) ── */
+#eyeLidTop.eye-open {
+  animation: eyeLidTopOpen 2.2s ease-out forwards;
+}
+#eyeLidBottom.eye-open {
+  animation: eyeLidBottomOpen 2.2s ease-out forwards;
+}
+
+@keyframes eyeLidTopOpen {
+  0%   { transform: translateY(0); }
+  18%  { transform: translateY(-5%); }
+  48%  { transform: translateY(-46%); }
+  74%  { transform: translateY(-90%); }
+  88%  { transform: translateY(-100%); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes eyeLidBottomOpen {
+  0%   { transform: translateY(0); }
+  18%  { transform: translateY(5%); }
+  48%  { transform: translateY(46%); }
+  74%  { transform: translateY(90%); }
+  88%  { transform: translateY(100%); }
+  100% { transform: translateY(100%); }
 }
 
 /* ─── Hotspot object images ─────────────────────────────────────────── */
