@@ -101,15 +101,15 @@ body.night-bedroom-page>*:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):no
 .hotspot--laptop {
   left: 9%;
   top: 57%;
-  width: 30%;
-  height: 33%;
+  width: 35%;
+  height: 40%;
 }
 
 .hotspot--window {
   left: 3%;
   top: 7%;
-  width: 28%;
-  height: 35%;
+  width: 38%;
+  height: 45%;
 }
 
 .hotspot--note {
@@ -120,10 +120,10 @@ body.night-bedroom-page>*:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):no
 }
 
 .hotspot--photo {
-  left: 67%;
+  left: 50%;
   top: 10%;
-  width: 29%;
-  height: 30%;
+  width: 49%;
+  height: 40%;
 }
 
 .hotspot--coat {
