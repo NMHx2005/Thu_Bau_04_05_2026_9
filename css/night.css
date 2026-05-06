@@ -38,7 +38,7 @@ body.night-bedroom-page::after {
   );
 }
 
-body.night-bedroom-page > *:not(#finOverlay):not(#blinkOverlay):not(#eyeLidTop):not(#eyeLidBottom):not(#objLightbox):not(#loreHost) {
+body.night-bedroom-page > *:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):not(#transitionText):not(#objLightbox):not(#loreHost) {
   position: relative;
   z-index: 1;
 }
@@ -364,6 +364,47 @@ body.night-bedroom-page > *:not(#finOverlay):not(#blinkOverlay):not(#eyeLidTop):
   74%  { transform: translateY(90%); }
   88%  { transform: translateY(100%); }
   100% { transform: translateY(100%); }
+}
+
+/* ─── Night transition text (eyes-closed interstitial) ─────────────── */
+
+#transitionText {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  pointer-events: none;
+}
+
+#transitionText p {
+  margin: 0;
+  opacity: 0;
+  font-family: "Courier New", Courier, monospace;
+  letter-spacing: 0.2em;
+  text-align: center;
+  animation: fadeInText 0.5s ease forwards;
+}
+
+#transitionText p:first-child {
+  font-size: 0.9rem;
+  color: #e8e8f0;
+}
+
+#transitionText p:last-child {
+  font-size: 0.72rem;
+  color: #9898b0;
+  letter-spacing: 0.14em;
+  animation-delay: 0.25s;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Hotspot object images ─────────────────────────────────────────── */

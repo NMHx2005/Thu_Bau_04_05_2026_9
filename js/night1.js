@@ -311,14 +311,41 @@
     });
     decodeCtl.redraw();
     $("btnNight2").addEventListener("click", function () {
-      if (rainCtl && typeof rainCtl.fadeOut === "function") {
-        rainCtl.fadeOut(1100);
-      } else if (window.SignalLostAudio) {
-        window.SignalLostAudio.fadeRainOut(1100);
-      }
+      var top = document.getElementById("eyeLidTop");
+      var bot = document.getElementById("eyeLidBottom");
+
+      /* 1. Cancel wake-up animation, snap to open position */
+      top.style.animation = "none";
+      bot.style.animation = "none";
+      top.style.transform = "translateY(-100%)";
+      bot.style.transform = "translateY(100%)";
+
+      /* 2. Force reflow then animate eyelids closed */
+      top.offsetWidth;
+      top.style.transition = "transform 0.55s cubic-bezier(0.4,0,1,1)";
+      bot.style.transition = "transform 0.55s cubic-bezier(0.4,0,1,1)";
+      top.style.transform = "translateY(0)";
+      bot.style.transform = "translateY(0)";
+
+      /* 3. After eyes are fully closed, show interstitial text */
       setTimeout(function () {
-        window.location.href = "night2.html";
-      }, 650);
+        var el = document.createElement("div");
+        el.id = "transitionText";
+        el.innerHTML = "<p>Night One ends.</p><p>The signal holds.</p>";
+        document.body.appendChild(el);
+
+        /* 4. Fade rain, then navigate — eyes will open in night2.html */
+        setTimeout(function () {
+          if (rainCtl && typeof rainCtl.fadeOut === "function") {
+            rainCtl.fadeOut(400);
+          } else if (window.SignalLostAudio) {
+            window.SignalLostAudio.fadeRainOut(400);
+          }
+          setTimeout(function () {
+            window.location.href = "night2.html";
+          }, 400);
+        }, 1500);
+      }, 560);
     });
   }
 
