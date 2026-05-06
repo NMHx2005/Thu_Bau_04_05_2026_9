@@ -1,376 +1,657 @@
-# SIGNAL LOST — Week 9 Progress (≈50% of final)
+# SIGNAL LOST — Week 9 Progress (≈50% of final scope)
 
-This document is written to be **read aloud** during the informal Week 9 presentation. It is intentionally **hyper-detailed**, aligned to the assessment criteria, and includes a **demo script** and a **Q&A bank**.
-
-### What I am showing (scope)
-
-By Week 9, I am demonstrating roughly **50% of the final project scope** (from `signal-lost/`), implemented as **Night 1 + Night 2** in this snapshot:
-
-- **Explore** a room via hotspots (story reveals through short “lore” overlays)
-- **Dial** a phone number (input validation; “wrong number” responses)
-- **Chat** with “Unknown” (scripted pacing + player choices)
-- **Solve one puzzle** (signal decode on canvas; reveals an image)
-- **Night 2 apps** exploration (Photos/Notes/Browser/Voicemail)
-- **Night 2 memory ordering** (sortable timeline; awards a milestone once)
-- **Night 2 chat + one free-text reply**
-- **Persist progress** (trust/clues/flags in localStorage; idempotent milestones)
-
-### What I am not showing (intentionally out of scope for Week 9)
-
-- Night 2 hidden thread mechanic (Week 11 content)
-- Night 3 climax + additional puzzle(s)
-- Ending routing logic and endgame payoff sequences
-
-This is deliberate: Week 9 is about proving the **core presentation systems** work and are extensible.
+This document is written to be **read aloud and used as a live reference** during the Week 9 informal presentation. It is **hyper-detailed**, directly mapped to the three assessment criteria, and includes a complete **demo script**, **file map**, and **Q&A bank** with answers tied to specific source files.
 
 ---
 
-## 1. Project overview (what the project is)
+## Scope: what I am demonstrating at Week 9
 
-**SIGNAL LOST** is a browser-based interactive narrative thriller presented through a **phone-like UI**. The story is told through **chat**, **UI interactions**, and **puzzles** that double as narrative devices.
+By Week 9, I am demonstrating roughly **50% of the final project scope**, implemented across **Night 1 (complete)** and **Night 2 (complete slice)**:
 
-Week 9 establishes the “engine” for the rest of the project and demonstrates the mid-game loop:
+- **Prologue** — 4 slides that reset state and transition into Night 1
+- **Night 1 Explore** — 5 visual hotspot objects revealed with a wakeup sequence; each opens a lightbox zoom overlay with title and lore
+- **Night 1 Dial** — phone number input with digit normalisation, wrong-number narrative responses, correct number unlocks chat
+- **Night 1 Chat** — scripted dialogue with Unknown, player choices affecting trust, conditional beat if coat was visited
+- **Night 1 Signal Puzzle** — canvas noise/reveal controlled by a slider; completing awards clue 1 (idempotent)
+- **Night 1 → Night 2 Transition** — eyelid-close animation + interstitial text "Night One ends. The signal holds." + eyelid-open in Night 2
+- **Night 2 Apps** — Photos, Notes, Browser, Voicemail; Voicemail copy switches at trust threshold T ≥ 5
+- **Night 2 Memory Ordering** — jQuery UI sortable; correct order fills slot 5 with "rest" and awards clue 2 (idempotent)
+- **Night 2 Chat + Free-text** — choices affect trust; one free-text reply keyword-matched; phrase stored in localStorage
+- **Night 2 Hidden Thread** — archived messages in both Notes and Browser reveal 3 undelivered messages sent from the player's own number; awards clue 3 (idempotent)
+- **Persistent state** — trust, clues, four idempotent milestone flags, and a phrases array in localStorage; `resetGame()` on index load
 
-- A reusable **script runner** for dialogue pacing + choices
-- A minimal but correct **state model** (trust/clues + one milestone)
-- A first interactive “signal” puzzle that proves I can integrate **canvas** + narrative
-- A minimal **audio layer** to support atmosphere and feedback
+## What is intentionally out of scope for Week 9
+
+- Night 3: heartbeat puzzle, timed chat, word bank
+- Ending routing: SIGNAL FOUND / NOT YET / STATIC endings
+- Night 3 milestone (`signal3` flag is stubbed in state but not yet triggered)
 
 ---
 
-## 2. Assessment criteria (rubric) — detailed mapping
+## 1. Project overview
+
+**SIGNAL LOST** is a browser-based interactive narrative game presented entirely through a **simulated phone interface**. There is no traditional game HUD. The story — about identity, memory, and what is left unsaid — is told through:
+
+- A **chat interface** with a contact named "Unknown"
+- **Environmental hotspots** that function as point-and-click exploration
+- **Mini-puzzles** that double as narrative devices (signal decode, memory ordering, hidden thread)
+- **Persistent state** that carries player choices across pages
+
+The project is built in vanilla HTML, CSS, and JavaScript — no frameworks, no build tools — to demonstrate direct technical control over the browser environment.
+
+---
+
+## 2. Assessment criteria — detailed mapping
+
+---
 
 ### A) Development of graphic / interface / design elements
 
-#### A1) Overall interface concept: phone-like narrative UI (Night 1 + Night 2)
+#### A1) Overall UI concept: the phone as narrative frame
 
-What staff will see on screen:
+The entire game is experienced through what looks and feels like a phone screen. This is not cosmetic — it is the core design decision that makes the narrative work:
 
-- A **full-screen scene** with hotspots that feel like “point and click” exploration.
-- A **dial pad** UI that transitions into a **phone chat** UI.
-- A **chat log** with “Unknown” identity framing and “typing” pacing.
-- A **signal panel** with a canvas and a slider, presented as “Signal clarity”.
+- The player never sees a traditional game UI. Every interaction (hotspot, dial pad, chat, puzzle) is presented as if the player is holding and using a phone.
+- "Unknown" is a contact in the phone — not a disembodied narrator — which makes the emotional stakes feel real.
+- The phone UI enforces intimacy and claustrophobia appropriate to the story's theme.
 
-Where it lives:
+**Where it lives:**
 
-- **Night 1 layout**: `signal-9/night1.html`
-- **Night 2 layout**: `signal-9/night2.html`
-- **Styles**: `signal-9/css/phone.css`, `signal-9/css/night.css`, `signal-9/css/base.css`, `signal-9/css/animations.css`
+- `signal-9/night1.html` — Night 1 layout (explore scene, dial pad, phone chat, signal panel)
+- `signal-9/night2.html` — Night 2 layout (app grid, app layer, memory phase, chat phase)
+- `signal-9/css/base.css` — CSS variables, reset, phone screen container
+- `signal-9/css/phone.css` — phone frame, status bar, chat bubbles, typing indicator, choices
+- `signal-9/css/night.css` — hotspot positions, lore overlay, dial pad, signal panel, eyelid overlays, lightbox, transition text, memory cards
+- `signal-9/css/animations.css` — message enter animation, reduced-motion support
 
-What I would say while pointing at UI:
+**What to say while pointing at the UI:**
 
-- “My design goal is that the user feels they’re interacting with a phone interface, not a traditional game HUD.”
-- “Week 9 proves the UI transitions work and feel coherent across two nights: explore → dial → chat → puzzle → apps → memory → chat/free-text.”
+> "The design goal is that the player feels they are using a real phone — not playing a game with a phone skin. Every hotspot, overlay, and chat bubble reinforces that frame."
 
-#### A2) Micro-interactions and feedback design
+---
 
-What I implemented:
+#### A2) Night 1 visual scene: 5 hotspot objects with wakeup animation
 
-- Hotspot click opens a **lore overlay** that can be dismissed by clicking — quick “read and continue”.
-- Dial pad presses show real-time **display update**; delete/call actions behave like a phone.
-- Chat choices appear as buttons and are appended into the chat log for continuity.
-- Puzzle slider updates a **percentage label** and changes the reveal level live.
-- Night 2 apps open/close, with a clear “discover apps → proceed” loop.
-- Night 2 memory ordering uses drag-and-drop with visible placeholder styling.
+Night 1 opens on a bedroom scene. Five physical objects are clickable. Each one carries a piece of the story.
 
-Where it lives:
+**The wakeup sequence:**
 
-- Lore overlay + hotspots: `signal-9/js/night1.js` (`showLore`, `initExplore`)
-- Dial pad: `signal-9/js/night1.js` (`initDial`, `renderDial`)
-- Chat UI: `signal-9/js/chat.js` (append bubbles + step runner)
-- Puzzle panel: `signal-9/js/signalPuzzle.js` + `signal-9/js/night1.js`
-- Night 2 apps/memory/chat: `signal-9/night2.html` + `signal-9/js/night2.js`
+When `night1.html` loads, two black `div` strips (`#eyeLidTop`, `#eyeLidBottom`) cover the screen. They animate like eyelids — blinking three times then opening fully over 2.8 seconds — before the room is visible. This communicates "the player just woke up" without any text.
 
-Why this matters for design assessment:
+After the eyelids fully open, `runWakeupSequence()` reveals each object image with a staggered fade-in (400ms apart, in visual order: window → photo → laptop → coat → note).
 
-- It demonstrates intentional UI/UX thinking: players always receive **visual confirmation** that their action did something.
-- The UI is consistent in tone (dark palette, “phone” framing, small text, restrained highlights).
+**The five objects and their roles:**
 
-#### A3) Visual puzzle as interface design (signal decode)
+| Object | Title shown | Story role |
+|---|---|---|
+| Laptop | The Unsent Draft | A half-written message, cursor still blinking. The player was trying to say something and could not finish it. |
+| Window | No Reflection | Rain on the glass, but no reflection of the player — a planted clue. Most players read it as art style on first playthrough. |
+| Note | The Number | A handwritten phone number, slightly smudged: 0427 318 247. This is the dial target. |
+| Photograph | The Photograph | A blurred face in a warm frame — almost recognisable, never quite. |
+| Coat | Still Warm | Still warm by the door. If visited before the call, Unknown references it in chat. |
 
-What the puzzle is:
+**All five objects must be opened before the dial phase unlocks.** This is intentional gating: the player must inhabit the space before they can reach out.
 
-- A **canvas-based image reveal** under noise, controlled by a slider (“Signal clarity”).
-- It is designed to feel like “tuning” a signal rather than solving a math puzzle.
+**Where it lives:**
 
-Where it lives:
+- Object images: `signal-9/assets/images/night1/obj_*.png`
+- Hotspot positions: `.hotspot--laptop`, `.hotspot--window`, `.hotspot--note`, `.hotspot--photo`, `.hotspot--coat` in `signal-9/css/night.css`
+- Wakeup sequence: `signal-9/js/night1.js` → `runWakeupSequence()`
+- Lore content: `signal-9/js/night1.js` → `var LORE = { ... }`
 
-- `signal-9/js/signalPuzzle.js` (canvas draw + noise overlay)
-- Hooked from `signal-9/js/night1.js` (`startSignalDecode`)
+---
 
-What I would say:
+#### A3) Lightbox zoom: shared-element style object inspection
 
-- “I chose a visual reveal puzzle because it matches the theme: SIGNAL LOST is about reconstructing what happened from distorted fragments.”
+Clicking any hotspot opens a full-screen lightbox. The object image **animates from its position on screen toward the centre of the viewport** — not a generic fade-in from nothing. This creates a sense of picking the object up.
+
+The interaction:
+
+1. A dark overlay appears and darkens to `rgba(0,0,0,0.82)`
+2. The object image scales up from the hotspot's position to fill the centre of the screen
+3. Below the image: the object's title and lore text appear
+4. A `×` button or clicking the overlay closes the lightbox with a reverse scale
+
+**What to say:**
+
+> "The lightbox uses `getBoundingClientRect()` to read where the hotspot sits on screen, then starts the animation from that exact point. It feels like the player physically picks up the object."
+
+**Where it lives:**
+
+- `signal-9/js/night1.js` → `showLightbox(id, hotspotEl)`, `closeLightbox()`
+- `signal-9/css/night.css` → `#objLightbox`, `#objLightbox__inner`, `#objLightbox__img`, `#objLightbox__title`, `#objLightbox__text`, `#objLightbox__close`
+
+---
+
+#### A4) Scene transition: eyelid animation + interstitial text
+
+When the player clicks "Continue" at the end of the Night 1 puzzle:
+
+1. The two eyelid strips animate **closed** over 0.55 seconds (ease-in, like shutting eyes)
+2. A `#transitionText` div appears on top of the closed eyelids: **"Night One ends."** then **"The signal holds."** — two lines fading in 0.25s apart
+3. Rain audio fades out
+4. Navigation to `night2.html`
+5. In Night 2, the eyelid strips start closed and animate **open** slowly over 2.2 seconds (ease-out, single open — no blinks) — communicating a different quality of consciousness
+
+Night 1 uses a **blink** sequence (disoriented waking). Night 2 uses a **slow single open** (deliberate, aware). The distinction is intentional.
+
+**Where it lives:**
+
+- Night 1 eyelid animation: `@keyframes eyeLidTopBlink`, `@keyframes eyeLidBottomBlink` in `signal-9/css/night.css`
+- Night 2 eyelid animation: `@keyframes eyeLidTopOpen`, `@keyframes eyeLidBottomOpen` in `signal-9/css/night.css`
+- Transition logic: `signal-9/js/night1.js` → `$("btnNight2").addEventListener("click", ...)`
+- Interstitial text styles: `#transitionText`, `@keyframes fadeInText` in `signal-9/css/night.css`
+- HTML: `<div id="eyeLidTop">` and `<div id="eyeLidBottom">` in `signal-9/night1.html` and `signal-9/night2.html`
+
+---
+
+#### A5) Night 2 app interface: four apps + hidden thread UI
+
+Night 2 presents a phone home screen grid with four apps. Each app opens a scrollable layer inside the phone frame:
+
+- **Photos** — corrupted camera roll for March 3rd; a blurred image resolves slightly on tap
+- **Notes** — a to-do list that will not be completed; a draft quote; and a collapsible "Drafts — 3 unsent [tap]" section revealing the hidden thread
+- **Browser** — search history from the final day (library hours, park bench, a phone through a door); and a collapsible "Draft sync — 3 pending [sync]" section revealing the same thread
+- **Voicemail** — locked copy until trust threshold; at T ≥ 5 shows "one unheard message" (audio reserved for ending)
+
+**Hidden thread UI:** Both Notes and Browser contain a discoverable section that, when tapped, reveals three right-aligned message bubbles sent from the player's own number — all marked "Not delivered" or "Send failed". The messages are not threatening. They say goodbye without using the word.
+
+**Where it lives:**
+
+- `signal-9/night2.html` — app grid, app layer, memory phase, chat phase
+- `signal-9/js/night2.js` → `renderApp(name)` — all four app content blocks including hidden thread
+
+---
+
+#### A6) Night 2 memory ordering
+
+A sortable drag-and-drop interface using jQuery UI. Four memory cards cover four timestamped events of March 3rd. A fifth slot labelled "what happened next" is always visible. When the player locks the correct order, Unknown fills slot 5 with one word: **rest**.
+
+**Where it lives:**
+
+- `signal-9/night2.html` — `#memoryList`, `#memoryFifth`, `#memoryRest`, `#btnVerifyMemory`
+- `signal-9/js/night2.js` → `initMemory()`
+- `signal-9/css/night.css` → `.memory-card`, `.memory-slot--framed`
+- `signal-9/css/jquery-overrides.css` — sortable drag styling
 
 ---
 
 ### B) Development of sophisticated coding solutions to problems
 
-Week 9 sophistication is in **architecture decisions** that support later expansion, not in the total number of levels.
+#### B1) Reusable chat engine (script runner)
 
-#### B1) Script presentation engine (reusable dialogue runner)
+**Problem:** Dialogue needs consistent pacing, typing indicators, choice buttons, and trust updates across multiple nights. Hardcoding per-page would be unmaintainable.
 
-Problem:
+**Solution:** `SignalLostChat.runScript(steps, opts)` — a step queue runner that accepts an array and executes sequentially:
 
-- I need an engine that can present dialogue consistently across pages: typing pace, choice buttons, and a clean way to queue beats.
+- `{ type: "unknown", text }` — typing indicator → delay → bubble
+- `{ type: "player", text }` — immediate player bubble (no delay)
+- `{ type: "choices", options }` — renders choice buttons; on pick: echo bubble, call `addTrust(delta)`, remove buttons
+- `{ type: "wait", ms }` — pause before next step
 
-Solution:
+Pacing is tuned per-night via `getDelayMul()` — Night 1 uses `1.14`, Night 2 uses `1.12`. Changing the multiplier adjusts the entire night's feel without touching individual lines.
 
-- Implement a **step queue runner** that accepts an array of steps and executes them sequentially.
-- Supported step types (Week 9): `unknown`, `player`, `choices`, `wait`
-- Supports a pacing multiplier to tune the “feel” without rewriting each line.
+**Why this is sophisticated:** Night scripts are pure data arrays. The engine is not rewritten for each night — it is called with a different script. Night 3 will reuse the same engine.
 
-Where it lives:
+**Where it lives:** `signal-9/js/chat.js`
 
-- `signal-9/js/chat.js`
+---
 
-What I would say:
+#### B2) Persistent state with 4-milestone idempotent awarding
 
-- “This runner is my narrative ‘runtime’. Week 9 proves the core runner works; later nights can reuse it with different scripts and pacing.”
+**Problem:** Progress must survive page reloads. Replaying a completed section must not inflate clue counts or re-trigger story beats.
 
-#### B2) Persistent state model (localStorage) + idempotent milestones (Night 1 + Night 2)
+**Solution:** `signal-9/js/state.js` — a self-contained localStorage module exposing:
 
-Problem:
+| Key | Purpose |
+|---|---|
+| `signalLost_trust` | Player trust score (0–10), clamped |
+| `signalLost_clues` | Total clues collected (0–4) |
+| `signalLost_doneSignal1` | Flag: Night 1 canvas puzzle completed |
+| `signalLost_doneMemoryDrag` | Flag: Night 2 memory ordering completed |
+| `signalLost_doneHidden` | Flag: hidden thread discovered |
+| `signalLost_doneSignal3` | Flag: Night 3 milestone (stub for Week 11) |
+| `signalLost_phrases` | JSON array of player-entered text |
 
-- The game needs to remember progress and avoid “double rewarding” if the player reloads or repeats an interaction.
+`tryAwardClue(kind)` checks the flag first. If already set, returns `false` — no clue awarded, no state change. This makes all milestones replay-safe.
 
-Solution (Week 9):
+`getFinalWords()` returns the first phrase in the array, or a fallback — used by ending pages to echo the player's own words back.
 
-- Store persistent values used by Week 9:
-  - **Trust (T)**: changes with choices
-  - **Clues (C)**: increments on a major milestone
-  - **Flag** `doneSignal1`: ensures the Night 1 milestone is awarded once
-  - **Flag** `doneMemoryDrag`: ensures the Night 2 memory milestone is awarded once
-  - **Phrases**: stores player-entered or tracked text in a simple list (future proofing)
-- Implement **idempotent milestone awarding**:
-  - `tryAwardClue("signal1")` returns false if already done.
-  - `tryAwardClue("memory")` returns false if already done.
+`resetGame()` clears all keys — called by `index.html` on load so every prologue run starts fresh.
 
-Where it lives:
+**What to say when pointing at the code:**
 
-- `signal-9/js/state.js`
+> "Every milestone is an idempotent operation. `tryAwardClue('signal1')` is safe to call 100 times — it awards exactly once. The same pattern covers all four milestones."
 
-What I would say:
+**Where it lives:** `signal-9/js/state.js`
 
-- “I’m intentionally keeping state minimal in Week 9, but it’s already correct: it persists, and it prevents duplicate rewards.”
+---
 
-#### B3) Input validation and “wrong number” behavior
+#### B3) Input normalisation and diegetic wrong-number responses
 
-Problem:
+**Problem:** Dial input may contain spaces or punctuation. A silent fail on wrong numbers breaks immersion.
 
-- Dial input must be robust: allow non-digits but compare digits; wrong entries should still produce narrative feedback.
+**Solution:**
 
-Solution:
+- `normalizeDialInput(str)` strips all non-digits: `"0427 318 247"` → `"0427318247"`
+- `isCorrectNoteNumber(dialString)` normalises then compares to `NOTE_PHONE_DIGITS`
+- `wrongNumberResponse()` randomly picks from three responses: busy tone (with three `playTone` calls), heavy silence, or a voicemail that says "Later" — each is a narrative beat, not an error message
 
-- Normalize dial input by stripping non-digits.
-- Compare against a canonical digits string (`NOTE_PHONE_DIGITS`).
-- Provide multiple wrong-number narrative responses (including optional tones) to keep it diegetic.
+**Where it lives:**
 
-Where it lives:
+- Normalisation: `signal-9/js/state.js` → `normalizeDialInput()`, `isCorrectNoteNumber()`
+- Wrong-number responses: `signal-9/js/night1.js` → `wrongNumberResponse()`
 
-- Normalization + correctness check: `signal-9/js/state.js` (`normalizeDialInput`, `isCorrectNoteNumber`)
-- Wrong-number responses: `signal-9/js/night1.js` (`wrongNumberResponse`)
+---
 
-#### B4) Minimal audio layer (atmosphere + interaction feedback)
+#### B4) CSS specificity bug — fixed overlay position conflict
 
-Problem:
+**Problem discovered and solved during development:** The rule:
 
-- Browser audio autoplay restrictions and the need for light feedback sounds.
+```css
+body.night-bedroom-page > *:not(#finOverlay) {
+  position: relative;
+  z-index: 1;
+}
+```
 
-Solution (Week 9):
+The `:not(#finOverlay)` argument contributes the ID's weight to the selector's specificity, making it **(1,1,1)**. This is higher than `#eyeLidTop` and `#objLightbox` at **(1,0,0)**, which caused both overlays to become `position: relative` instead of `position: fixed` — the eyelid animation had no effect, and the lightbox appeared at the bottom of the page.
 
-- Provide a minimal audio API surface for Night 1:
-  - `startRainLoop()` (ambient)
-  - `playTypingTick()` (UI feedback)
-  - `playNotification()` (moment cue)
-  - `playTone()` (fallback / diegetic tones)
-- Audio is kept minimal so it supports the demo without complicating Week 9 scope.
+**Fix:** Extend the exclusion list:
 
-Where it lives:
+```css
+body.night-bedroom-page > *:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):not(#transitionText):not(#objLightbox):not(#loreHost) {
+  position: relative;
+  z-index: 1;
+}
+```
 
-- `signal-9/js/audio.js`
+**What to say:**
 
-What I would say:
+> "This is a real bug I diagnosed and fixed during development — a specificity collision between a broad reset rule and individual overlay selectors. Understanding how `:not()` contributes ID weight to specificity was the key."
 
-- “Week 9 audio is intentionally small: it’s here to support atmosphere and clarity, not to become a system to debug during the checkpoint.”
+**Where it lives:** `signal-9/css/night.css` — line 41
+
+---
+
+#### B5) Shared-element lightbox zoom via getBoundingClientRect
+
+**Problem:** A lightbox that fades in from centre is generic. The object should feel like it is being physically picked up from its position in the room.
+
+**Solution:**
+
+1. On hotspot click, call `hotspotEl.getBoundingClientRect()` to get the element's current screen position
+2. Compute the offset from the viewport centre: `originX = rect.left + rect.width/2 - vw/2`
+3. Set the lightbox inner div's `transform` to `translate(originX, originY) scale(scaleStart)` — placing it visually at the hotspot
+4. Remove `transition`, force a reflow with `lb.offsetWidth`
+5. Re-add `transition` and set `transform: translate(0,0) scale(1)` — the browser interpolates from the hotspot position to centre
+6. Closing reverses: scale shrinks, opacity drops, then `night-hidden` class re-applied
+
+**Where it lives:** `signal-9/js/night1.js` → `showLightbox(id, hotspotEl)`
+
+---
+
+#### B6) Dual eyelid animation system
+
+**Problem:** A single opacity-fade overlay communicates nothing about *why* the screen goes dark. Two vertical strips that slide apart communicate "eyes opening".
+
+**Solution:** Two `position: fixed` divs, each `height: 51vh` (1px overlap to prevent hairline gaps):
+
+- `#eyeLidTop` — anchored to the top, animates `translateY(0)` → `translateY(-100%)`
+- `#eyeLidBottom` — anchored to the bottom, animates `translateY(0)` → `translateY(100%)`
+
+Two keyframe pairs:
+
+- `eyeLidTopBlink` / `eyeLidBottomBlink` (2.8s): multiple partial opens at 10%, 32%, then full open at 72% — communicates disoriented waking in Night 1
+- `eyeLidTopOpen` / `eyeLidBottomOpen` (2.2s, ease-out): single slow open — communicates deliberate awareness in Night 2
+
+For the Night 1 → Night 2 transition, the eyelids are first snapped to their fully-open position (via inline style), then transitioned back to closed (0.55s ease-in) using JavaScript before navigation. Night 2 then starts with eyelids at their default closed position and animates them open.
+
+**Where it lives:**
+
+- `signal-9/css/night.css` → `@keyframes eyeLidTopBlink`, `@keyframes eyeLidBottomBlink`, `@keyframes eyeLidTopOpen`, `@keyframes eyeLidBottomOpen`, `#eyeLidTop`, `#eyeLidBottom`
+- Transition logic: `signal-9/js/night1.js` → `$("btnNight2").addEventListener`
+
+---
+
+#### B7) Idempotent hidden thread across two app entry points
+
+**Problem:** The hidden thread can be found from either the Notes app or the Browser app. Only one clue should be awarded regardless of which the player opens first or whether they open both.
+
+**Solution:** Both `renderApp("notes")` and `renderApp("browser")` call the same `tryAwardClue("hidden")`. Since `tryAwardClue` is idempotent — it checks `getDoneHidden()` before setting the flag and incrementing clues — the award fires exactly once. Both app UIs also check `getDoneHidden()` on render to show the thread as already-expanded if previously discovered.
+
+**Where it lives:** `signal-9/js/night2.js` → `renderApp("notes")`, `renderApp("browser")`; `signal-9/js/state.js` → `tryAwardClue("hidden")`, `getDoneHidden()`
+
+---
+
+#### B8) Canvas signal decode puzzle
+
+**Problem:** A thematic puzzle that fits the game's core concept of "recovering corrupted memory from noise".
+
+**Solution:** `SignalLostSignalPuzzle.initDecode()` — a canvas-based reveal:
+
+- A `LastLocation.png` image is drawn on the canvas
+- A procedural noise layer is drawn on top at an opacity controlled by the slider (0 = maximum noise, 1 = no noise)
+- The slider maps linearly to noise opacity; the image becomes visible as clarity increases
+- At 100%, `onComplete()` fires — exactly once, checked externally via `tryAwardClue("signal1")`
+- If the image file is missing, a fallback (`Bedroom.png`) is used
+
+Real-time pixel blending on canvas is more technically interesting and more thematically appropriate than swapping static images.
+
+**Where it lives:** `signal-9/js/signalPuzzle.js`; called from `signal-9/js/night1.js` → `startSignalDecode()`
+
+---
+
+#### B9) Free-text keyword matching and phrase storage
+
+**Problem:** A single free-text input at the end of Night 2 needs to feel like it matters — Unknown should respond differently based on what the player says, and the text should be recoverable for later use in endings.
+
+**Solution:**
+
+- `freeInput` keydown handler reads the player's text
+- Lowercased input is checked for keywords: `"sorry"`, `"love"`, `"afraid"` / `"scared"`, with a default fallback
+- The exact phrase is stored via `SignalLostState.addPhrase(raw)` — a deduplicating array in localStorage
+- `getFinalWords()` returns the first stored phrase, used by ending pages to echo the player's own words
+
+**Where it lives:** `signal-9/js/night2.js` → `initFreeInput()`; `signal-9/js/state.js` → `addPhrase()`, `getFinalWords()`
 
 ---
 
 ### C) Ability to respond to questions about the presented work
 
-To meet this criterion, I prepared:
-
-- A **structured demo script** (timeboxed)
-- A **file map** (so I can point to specific code fast)
-- A **Q&A bank** with “why” and “how” answers tied to real files
-- A set of **likely staff questions** and concise answers
+The following sections contain the demo script, file map, and Q&A bank prepared to meet this criterion.
 
 ---
 
-## 3. Presentation script (Week 9, 5–7 minutes)
+## 3. Demo script (Week 9, 5–8 minutes)
 
-### 3.1 Setup (30 seconds)
+### Opening (30 seconds)
 
 Say:
 
-- “This is my Week 9 progress. I’m showing a complete Night 1 loop with UI transitions, a dialogue engine, one puzzle, and persistent state.”
-- “This is an informal checkpoint; I’ll show the working build, then explain architecture.”
+> "This is my Week 9 checkpoint for SIGNAL LOST — an interactive narrative game running in the browser as a simulated phone interface. I will walk through a complete Night 1 loop and a complete Night 2 slice, covering roughly 50% of the final project scope. This includes all five hotspot objects, a scene transition with a custom eyelid animation, the canvas puzzle, and the Night 2 hidden thread mechanic."
 
 Do:
 
 - Open `signal-9/index.html`
-- Click through prologue to enter Night 1
+- Note: "index.html resets all localStorage state on load"
+- Click through the 4 prologue slides
 
-### 3.2 Demo step-by-step (4–5 minutes)
+---
 
-#### Step A — Exploration UI (hotspots)
+### Step 1 — Wakeup and bedroom exploration (Night 1)
 
 Do:
 
-- Click 2–3 hotspots quickly (e.g. laptop, window, note)
+- Watch the eyelid animation play (3 blinks over 2.8s, then open)
+- Watch the 5 objects fade in one by one after the eyelids open
 
 Say:
 
-- “Hotspots reveal short lore overlays. This establishes tone and also ensures the player interacts before the phone becomes available.”
+> "When Night 1 loads, two black strips animate like eyelids — three quick blinks, then open. This tells the player they just woke up without any text. After the eyelids open, the five objects in the room fade in staggered, 400 milliseconds apart."
+
+Do:
+
+- Click the **Window** hotspot
+
+Say:
+
+> "Each object opens a lightbox that zooms from the object's position on screen to the centre — using `getBoundingClientRect` to read the exact screen position. The title is 'No Reflection'. Rain on the glass, but no reflection of the player. This is a planted clue — most players read it as an art style choice on first playthrough."
+
+- Close. Click **Laptop**:
+
+> "The Unsent Draft — a half-written message, cursor still blinking. The player was trying to say something and could not finish it."
+
+- Close. Click **Note**:
+
+> "The Number — a handwritten phone number, slightly smudged: 0427 318 247. This is the number the player will dial."
+
+- Close. Click **Photograph** and **Coat**:
+
+> "The Photograph — almost recognisable, never quite. And the Coat — still warm by the door. If this is visited before the call, Unknown fires a conditional extra line."
+
+Say:
+
+> "All five have to be read before the dial phase unlocks. That is intentional gating."
 
 Point to:
 
-- `signal-9/js/night1.js` → `initExplore()`, `showLore()`
+- `signal-9/js/night1.js` → `initExplore()`, `runWakeupSequence()`, `showLightbox()`
+- `signal-9/css/night.css` → `@keyframes eyeLidTopBlink`, `#objLightbox`
 
-#### Step B — Dial pad and validation
+---
+
+### Step 2 — Dial pad and validation
 
 Do:
 
-- Type a wrong number → press call → show wrong-number response
-- Then dial the correct one from the note: **0427 318 247** → call
+- Type a wrong number → press call → show response
 
 Say:
 
-- “I normalize the dial input to digits-only. Wrong numbers still give a narrative response instead of a silent failure.”
+> "Wrong numbers produce a narrative response — a busy tone, heavy silence, or a voicemail that says 'Later'. The game never fails silently. Input is normalised to digits-only before comparison."
+
+Do:
+
+- Dial **0427 318 247** → call
+
+Say:
+
+> "When the correct number is dialled, Unknown picks up immediately — no ring. First line: 'I have been waiting for you to call.'"
 
 Point to:
 
 - `signal-9/js/state.js` → `normalizeDialInput()`, `isCorrectNoteNumber()`
-- `signal-9/js/night1.js` → `wrongNumberResponse()`
 
-#### Step C — Chat engine + choices affect trust
+---
+
+### Step 3 — Chat with Unknown
 
 Do:
 
-- Let “Unknown” lines play
-- Choose an option that increases or decreases trust
+- Let the chat run; select one choice
 
 Say:
 
-- “Dialogue is driven by a reusable script runner. Choices write into the log and update trust in persistent state.”
+> "The chat runner queues steps — typing indicator, delay, bubble. Choices echo back into the log so the player sees what they said. Each choice adjusts trust in localStorage. Because the Coat was visited earlier, watch for the extra conditional line from Unknown."
 
 Point to:
 
-- `signal-9/js/chat.js` (runner)
-- `signal-9/js/state.js` (`addTrust`)
+- `signal-9/js/chat.js` → `runScript()`
+- `signal-9/js/state.js` → `addTrust()`
 
-#### Step D — Signal decode puzzle (canvas)
+---
+
+### Step 4 — Signal decode puzzle (canvas)
 
 Do:
 
-- Move “Signal clarity” slider toward 100% until completion
+- Drag the slider from 0 toward 100%
 
 Say:
 
-- “This canvas puzzle proves I can integrate a mechanical interaction into the narrative theme. Completing it awards a clue once.”
+> "At the end of the Night 1 conversation, Unknown sends a corrupted image. The canvas puzzle blends a procedural noise layer over the hidden image in real time — the slider controls noise opacity. The image resolves as signal clarity increases. Completing it awards clue 1, idempotent — replaying Night 1 will not award it a second time."
 
 Point to:
 
 - `signal-9/js/signalPuzzle.js`
-- `signal-9/js/night1.js` (`startSignalDecode`, calls `tryAwardClue("signal1")`)
+- `signal-9/js/night1.js` → `startSignalDecode()`, `tryAwardClue("signal1")`
 
-#### Step E — Week 9 stopping point
+---
+
+### Step 5 — Scene transition to Night 2
 
 Do:
 
-- Click “Continue” → land on `signal-9/night2.html` (Night 2 continues the slice)
+- Click "Continue"
 
-#### Step F — Night 2 apps → memory → chat → free text
+Say:
+
+> "Watch the transition: the eyelids animate closed, text appears — 'Night One ends. The signal holds.' — then navigation to Night 2, where the eyelids open slowly. Night 1 blinks to communicate disorientation. Night 2 opens smoothly — the player is now more aware."
+
+Point to:
+
+- `signal-9/js/night1.js` → `$("btnNight2").addEventListener`
+- `signal-9/css/night.css` → `@keyframes eyeLidTopOpen`, `#transitionText`
+
+---
+
+### Step 6 — Night 2 apps
 
 Do:
 
-- Open each app (Photos/Notes/Browser/Voicemail), then close the app layer.
-- Continue to the memory ordering screen and lock the correct order.
-- Proceed into chat, pick one choice, then type one free-text reply and press Enter.
+- Open Photos, Notes, Browser, Voicemail in turn
 
 Say:
 
-- “Night 2 extends the phone illusion: apps exploration and a drag-and-drop memory timeline.”
-- “After the memory milestone, the script asks for one free-text reply; this is stored for later use.”
-- “Week 9 ends here; Week 11 adds deeper mechanics (hidden thread + Night 3 + endings).”
+> "Photos — corrupted memories of March 3rd, a blurred image that partially resolves on tap. Notes — a to-do list that will not be completed, a draft. Browser — search history from the final day: library hours, a park bench, can you hear a phone ring through a door. Voicemail — copy switches at trust threshold T ≥ 5. If it is locked here, that is by design."
 
-### 3.3 Close (30–60 seconds)
+---
+
+### Step 7 — Memory ordering
+
+Do:
+
+- Drag cards into the correct order → Lock order
 
 Say:
 
-- “Week 9 proves the core systems: UI flow, dialogue runner, puzzle integration, and persistent state.”
-- “Next steps after staff feedback: expand into Night 2 systems and build toward the week 11 milestone.”
+> "The memory drag uses jQuery UI sortable. Four cards, four timestamps from March 3rd. Correct order fills slot 5 with one word: 'rest'. Clue 2 is awarded, idempotent."
+
+Point to:
+
+- `signal-9/js/night2.js` → `initMemory()`, `tryAwardClue("memory")`
 
 ---
 
-## 4. File map (for quick navigation during Q&A)
+### Step 8 — Chat, free-text, hidden thread
 
-- **Entry + reset**: `signal-9/index.html`
-- **Night 1 page**: `signal-9/night1.html`
-- **Night 1 logic**: `signal-9/js/night1.js`
-- **Chat engine**: `signal-9/js/chat.js`
-- **State**: `signal-9/js/state.js`
-- **Signal puzzle**: `signal-9/js/signalPuzzle.js`
-- **Audio**: `signal-9/js/audio.js`
-- **Week 9 stop page**: `signal-9/night2.html`
-- **Night 2 logic**: `signal-9/js/night2.js`
+Do:
 
----
+- Select a choice in the chat
+- Type a free-text reply and press Enter
 
-## 5. Likely questions (and prepared answers)
+Say:
 
-### Design / UI
+> "After the memory puzzle, Unknown returns to chat. The free-text reply is keyword-matched — sorry, love, afraid — to determine Unknown's response. The phrase is stored in localStorage and can reappear verbatim in the NOT YET ending."
 
-- **Q: What design elements are completed by Week 9?**  
-  **A:** A coherent Night 1 UI flow: exploration hotspots → dial pad → chat UI → puzzle panel (canvas). All are styled consistently with the phone theme (`night1.html` + `css/*`).
+Do:
 
-- **Q: Why use a phone UI?**  
-  **A:** The story is about communication, absence, and reconstruction. A phone UI makes the narrative feel diegetic and supports “Unknown” as a believable presence.
+- Open Notes → tap "Drafts — 3 unsent"
 
-### Coding / engineering
+Say:
 
-- **Q: Why did you build a script runner instead of hardcoding dialogue?**  
-  **A:** Hardcoding doesn’t scale. The script runner makes pacing and branching consistent and keeps the night scripts readable (`js/chat.js`).
+> "Inside Notes there is an archived thread. Inside Browser there is a draft sync thread. Both reveal the same discovery: messages sent from the player's own number in the last hour that were never delivered. They say goodbye without using the word. Finding the thread awards clue 3. Because both entry points call the same idempotent `tryAwardClue('hidden')`, the clue fires exactly once regardless of which app the player opens first."
 
-- **Q: How do you prevent replay from inflating progress?**  
-  **A:** I store flags (`doneSignal1`, `doneMemoryDrag`) and use `tryAwardClue("signal1")` / `tryAwardClue("memory")` so each milestone only awards once (`signal-9/js/state.js`).
+Point to:
 
-- **Q: How do you handle dial input robustness?**  
-  **A:** I normalize input to digits-only (`normalizeDialInput`) then compare to `NOTE_PHONE_DIGITS`, so spaces/symbols don’t break the check (`js/state.js`).
-
-- **Q: Why canvas for the puzzle?**  
-  **A:** Canvas gives control over noise blending and a clean real-time reveal effect. It also matches the theme of “signal clarity” better than a static image swap (`js/signalPuzzle.js`).
-
-### Process / progress
-
-- **Q: What are your next steps after Week 9?**  
-  **A:** Expand to Night 2 systems (apps layer, memory ordering, deeper state), then integrate a final-night climax and ending logic for Week 11.
+- `signal-9/js/night2.js` → `renderApp("notes")`, `renderApp("browser")`
+- `signal-9/js/state.js` → `tryAwardClue("hidden")`, `getDoneHidden()`
 
 ---
 
-## 6. Week 9 checklist (what I can confidently claim)
+### Close (30 seconds)
 
-- A Night 1 loop that starts at `index.html` and ends at the Week 9 stop page
-- A reusable chat runner with choices affecting persistent trust
-- A canvas-based puzzle integrated into narrative flow
-- Persistent state and idempotent milestone awarding
-- Minimal audio atmosphere + feedback
+Say:
+
+> "Week 9 demonstrates all core systems: a complete Night 1 loop with visual object exploration, lightbox zoom, the eyelid scene transition, dial validation, a reusable chat runner, and a canvas puzzle — plus a full Night 2 slice covering apps, memory ordering, free-text chat, and the hidden thread. State persists and milestones are idempotent across both nights. Night 3 — heartbeat puzzle, timed chat, word bank, and three branching endings — is scoped for Week 11."
 
 ---
 
-## 7. Planned for Week 11 (not in this snapshot)
+## 4. File map
 
-- Night 2: apps layer + memory ordering + additional narrative mechanics
-- Night 3: climax pacing + additional puzzle
-- Ending routing/payoffs and final polish
+| File | Purpose |
+|---|---|
+| `signal-9/index.html` | Entry point; resets state; 4 prologue slides |
+| `signal-9/night1.html` | Night 1 UI: explore scene, dial pad, phone screen, signal panel |
+| `signal-9/night2.html` | Night 2 UI: app grid, app layer, memory phase, chat phase |
+| `signal-9/js/night1.js` | Hotspots, lore, wakeup sequence, lightbox, dial, chat N1, signal decode, transition |
+| `signal-9/js/night2.js` | Apps, memory ordering, chat N2, free-text, hidden thread |
+| `signal-9/js/chat.js` | Reusable chat engine (step queue runner) |
+| `signal-9/js/state.js` | Trust, clues, 4 milestone flags, phrases, normalizeDialInput, getFinalWords |
+| `signal-9/js/signalPuzzle.js` | Canvas noise/reveal puzzle |
+| `signal-9/js/audio.js` | Rain loop, notification, typing tick |
+| `signal-9/css/night.css` | Hotspot positions, overlays, eyelid animations, lightbox, transition text |
+| `signal-9/css/phone.css` | Phone frame, chat bubbles, choices, typing indicator |
+| `signal-9/assets/images/night1/` | 5 hotspot object images |
 
+---
+
+## 5. Q&A bank
+
+### Design / Interface
+
+**Q: What design elements are complete at Week 9?**
+A: A full Night 1 visual loop — bedroom with 5 interactive objects, lightbox zoom on click, eyelid wakeup animation, dial pad, chat UI, canvas puzzle panel — plus a full Night 2 slice with app grid, memory ordering, and hidden thread UI. All styled consistently on the phone theme.
+
+**Q: Why use a phone UI instead of a traditional game interface?**
+A: The story is about communication and absence. A phone UI makes "Unknown" a believable contact and the interactions feel diegetic — the player is not a character controlling a character, they are the character using their own phone. The UI supports the emotional stakes directly.
+
+**Q: Why do objects in Night 1 use a lightbox instead of a text-only overlay?**
+A: Showing the actual image of the object as it zooms from its position to centre reinforces the tactile metaphor — the player is picking it up and examining it. A text-only overlay removes the player from the space; the lightbox keeps them in it.
+
+**Q: Why are the eyelids two separate divs instead of a single opacity overlay?**
+A: A single opacity fade communicates nothing about *why* the screen goes dark. Two vertical strips that slide apart like eyelids communicate a physical action — waking up, opening eyes — without any text. The different behaviours (three blinks vs. single slow open) between Night 1 and Night 2 communicate a change in the player's state of consciousness.
+
+**Q: Why does Night 1 blink three times but Night 2 opens smoothly?**
+A: Night 1 represents waking up disoriented — the multiple blinks communicate the body's struggle to stay awake. Night 2 represents a more deliberate awareness after having revisited the events of March 3rd. The easing and timing were tuned to feel distinct.
+
+---
+
+### Coding / Architecture
+
+**Q: How does the lightbox zoom work technically?**
+A: `showLightbox(id, hotspotEl)` calls `hotspotEl.getBoundingClientRect()` to get the hotspot's position on screen. It calculates the offset from the viewport centre, sets the lightbox inner element's `transform` to position it at the hotspot's location and scale it down to the hotspot's apparent size, then forces a reflow by reading `lb.offsetWidth` before adding a CSS transition and setting `transform` to its final centred state. The browser interpolates the full animation.
+
+**Q: How do you prevent replaying Night 1 from awarding clue 1 twice?**
+A: `tryAwardClue("signal1")` in `state.js` checks `getDoneSignal1()` first. If the flag is already set in localStorage, the function returns `false` immediately without modifying any state. The same idempotent pattern applies to all four milestones.
+
+**Q: The hidden thread can be found in both Notes and Browser. How do you make sure clue 3 is only awarded once?**
+A: Both `renderApp("notes")` and `renderApp("browser")` call `tryAwardClue("hidden")`. Since `tryAwardClue` is idempotent — it checks the `doneHidden` flag first — the award fires on whichever app the player opens first. If they then open the other app, the thread is already shown in expanded state (because `getDoneHidden()` returns `true`), but no second clue is awarded.
+
+**Q: How does `normalizeDialInput` work and why does it matter?**
+A: It applies `.replace(/\D/g, "")` to strip every non-digit character. This means a player can type "0427 318 247" (with spaces) or "0427-318-247" and still match the canonical `NOTE_PHONE_DIGITS = "0427318247"`. Without this, any formatting variation would silently fail.
+
+**Q: Why is `signal3` already in state.js if Night 3 is not built yet?**
+A: The milestone system is designed so that each night adds one entry without changing existing code. Stubbing `signal3` now means that when Night 3 is built, `tryAwardClue("signal3")` and `resetGame()` already handle it correctly. It also means the comment "covers all four milestones" is accurate during the Week 9 presentation — the architecture is visible even if the content is not.
+
+**Q: What is `getFinalWords()` used for?**
+A: It returns the first phrase stored by the player's free-text input in Night 2, or a fallback of "still here". Ending pages call `SignalLostState.getFinalWords()` to echo the player's own words back to them — a narrative payoff where the game remembers what the player said and uses it in the ending. `ending.js` references this function.
+
+**Q: How does the chat runner work?**
+A: `SignalLostChat.runScript(steps, opts)` takes an array of step objects and executes them one at a time. Unknown steps show a typing indicator for a random delay (scaled by `getDelayMul()`), then append a bubble and move to the next step. Choice steps render buttons; when one is picked, the choice echoes as a player bubble, trust is updated, buttons are cleared, and the next step begins. The engine is never rewritten per night — only the script array and pacing multiplier change.
+
+**Q: Why canvas for the signal puzzle instead of a CSS transition or image swap?**
+A: Canvas gives precise real-time control over pixel blending — the noise layer can be drawn at any opacity in a single `drawImage` call, and the reveal is smooth at any slider position. An image swap would show a binary transition (noisy → clear). A CSS opacity fade would not blend the two layers. The canvas approach is more technically interesting and more thematically appropriate to the idea of "tuning a signal".
+
+---
+
+### Process / Progress
+
+**Q: How is the project structured and why vanilla JS?**
+A: All three nights are separate HTML pages sharing the same JS modules and CSS files. No build tools, no bundler, no framework. This keeps the demo reliable (open a file, it works), keeps the code readable during review, and demonstrates direct browser API knowledge.
+
+**Q: What are your next steps after the Week 9 feedback?**
+A: Night 3 — heartbeat puzzle, timed chat, word bank. Then ending routing: three paths (SIGNAL FOUND / NOT YET / STATIC) based on final trust and clue count. Final polish across all nights.
+
+---
+
+## 6. Week 9 confirmed claims
+
+- Complete Night 1 loop: prologue → wakeup animation → 5 visual objects + lightbox → dial pad → chat with Unknown → canvas puzzle
+- Complete Night 2 loop: eyelid transition with interstitial → apps (4) → memory drag → chat → free-text → hidden thread
+- Reusable chat engine across both nights
+- 4-milestone idempotent state system (signal1, memory, hidden, signal3 stub)
+- Persistent trust, clues, and phrase array in localStorage
+- CSS specificity bug diagnosed and resolved in production code
+- Eyelid animation system with two distinct behaviours for Night 1 and Night 2
+
+---
+
+## 7. Planned for Week 11
+
+- Night 3: heartbeat canvas puzzle, timed chat, word bank interaction
+- Ending router: trust threshold + clue count → three ending paths
+- SIGNAL FOUND, NOT YET, STATIC ending pages with narrative payoff
+- `tryAwardClue("signal3")` wired to Night 3 completion
+- `getFinalWords()` and `getPhrases()` used in ending text
