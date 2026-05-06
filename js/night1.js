@@ -16,22 +16,38 @@
   var decodeCtl = null;
 
   var LORE = {
-    laptop:
-      "Draft unsent: “I’ll call when I—” The cursor blinks. The rest is gone. The files ask for a password you don’t remember choosing.",
-    window:
-      "Rain writes vertical lines on the glass. You look for your reflection. There isn’t one—only the room behind you, softer than it should be.",
-    note:
-      "Ink smudged by thumbprints. A number: 0427 318 247. It feels like yours and not like yours.",
-    photo:
-      "A face you should know, smeared into shadow. The frame is warm, as if someone held it too long.",
-    coat:
-      "The coat is heavier than cloth should be—still holding the shape of shoulders, still holding heat.",
+    laptop: {
+      title: "The Unsent Draft",
+      text: "A half-written unsent message — cursor still blinking. The player has been trying to say something and could not finish it.",
+      img: "assets/images/obj_laptop.png",
+    },
+    window: {
+      title: "No Reflection",
+      text: "Rain on the glass, but no reflection. A planted clue — most players read it as an art style choice on first playthrough and only catch it on replay.",
+      img: "assets/images/obj_window.png",
+    },
+    note: {
+      title: "The Number",
+      text: "A handwritten phone number, slightly smudged. 0427 318 247. This is the number the player will dial.",
+      img: "assets/images/obj_note.png",
+    },
+    photo: {
+      title: "The Photograph",
+      text: "A blurred image of a person. Warm frame. The face is almost recognisable — but not quite.",
+      img: "assets/images/obj_photo.png",
+    },
+    coat: {
+      title: "Still Warm",
+      text: "Still warm by the door. If you read this before you call, Unknown will remember.",
+      img: "assets/images/obj_coat.png",
+    },
   };
 
   function $(id) {
     return document.getElementById(id);
   }
 
+  /* ── Text-only overlay (for wrong-number responses) ─────────────── */
   function showLore(text) {
     var host = $("loreHost");
     host.innerHTML = "";
@@ -47,6 +63,78 @@
     host.appendChild(wrap);
   }
 
+  /* ── Lightbox zoom from hotspot position ─────────────────────────── */
+  function showLightbox(id, hotspotEl) {
+    var lore = LORE[id];
+    if (!lore) return;
+
+    var lb = $("objLightbox");
+    var inner = $("objLightbox__inner");
+    var imgEl = $("objLightbox__img");
+    var titleEl = $("objLightbox__title");
+    var textEl = $("objLightbox__text");
+
+    imgEl.src = lore.img;
+    titleEl.textContent = lore.title;
+    textEl.textContent = lore.text;
+
+    /* compute initial transform: scale from hotspot centre to viewport centre */
+    var rect = hotspotEl.getBoundingClientRect();
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var originX = rect.left + rect.width / 2 - vw / 2;
+    var originY = rect.top + rect.height / 2 - vh / 2;
+    var scaleStart = Math.min(rect.width / 320, rect.height / 220, 0.35);
+
+    inner.style.transition = "none";
+    inner.style.transform =
+      "translate(" + originX + "px," + originY + "px) scale(" + scaleStart + ")";
+    inner.style.opacity = "0";
+
+    lb.classList.remove("night-hidden");
+
+    /* force reflow then animate to final position */
+    lb.offsetWidth;
+    inner.style.transition =
+      "transform 0.38s cubic-bezier(0.22,0.61,0.36,1), opacity 0.32s ease";
+    inner.style.transform = "translate(0,0) scale(1)";
+    inner.style.opacity = "1";
+
+    lb.classList.add("lb-open");
+  }
+
+  function closeLightbox() {
+    var lb = $("objLightbox");
+    var inner = $("objLightbox__inner");
+
+    inner.style.transition = "transform 0.25s ease, opacity 0.22s ease";
+    inner.style.transform = "scale(0.88)";
+    inner.style.opacity = "0";
+    lb.classList.remove("lb-open");
+
+    setTimeout(function () {
+      lb.classList.add("night-hidden");
+    }, 260);
+  }
+
+  /* ── Wakeup sequence: blink → room → objects fade in ─────────────── */
+  function runWakeupSequence() {
+    var BLINK_MS = 2800;
+    var STAGGER_MS = 400;
+    var order = ["window", "photo", "laptop", "coat", "note"];
+
+    setTimeout(function () {
+      order.forEach(function (id, i) {
+        setTimeout(function () {
+          var btn = document.querySelector(".hotspot--" + id);
+          if (!btn) return;
+          var img = btn.querySelector(".hotspot-obj");
+          if (img) img.classList.add("visible");
+        }, i * STAGGER_MS);
+      });
+    }, BLINK_MS);
+  }
+
   function updateExploreCta() {
     var n = Object.keys(visited).length;
     $("btnToDial").disabled = n < 5;
@@ -57,11 +145,22 @@
       btn.addEventListener("click", function () {
         var id = btn.getAttribute("data-id");
         visited[id] = true;
-        showLore(LORE[id] || "");
+        showLightbox(id, btn);
         if (window.SignalLostAudio) window.SignalLostAudio.playTypingTick();
         updateExploreCta();
       });
     });
+
+    /* lightbox close: overlay click or × button */
+    var lb = $("objLightbox");
+    lb.addEventListener("click", function (e) {
+      if (e.target === lb) closeLightbox();
+    });
+    $("objLightbox__close").addEventListener("click", function (e) {
+      e.stopPropagation();
+      closeLightbox();
+    });
+
     $("btnToDial").addEventListener("click", function () {
       $("phase-explore").classList.add("night-hidden");
       $("phase-dial").classList.remove("night-hidden");
@@ -234,6 +333,7 @@
     $("noteHint").textContent = formatted;
     initExplore();
     initDial();
+    runWakeupSequence();
   }
 
   boot();

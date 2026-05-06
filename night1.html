@@ -10,15 +10,26 @@
     <link rel="stylesheet" href="css/night.css" />
   </head>
   <body class="night-bedroom-page">
+    <div id="blinkOverlay" aria-hidden="true"></div>
     <div id="phase-explore">
       <div class="explore-scene">
         <div class="explore-inner">
           <p class="explore-hint">Night 1 — Reconstruction</p>
-          <button class="hotspot hotspot--laptop" type="button" data-id="laptop" aria-label="Laptop"></button>
-          <button class="hotspot hotspot--window" type="button" data-id="window" aria-label="Window"></button>
-          <button class="hotspot hotspot--note" type="button" data-id="note" aria-label="Note"></button>
-          <button class="hotspot hotspot--photo" type="button" data-id="photo" aria-label="Photograph"></button>
-          <button class="hotspot hotspot--coat" type="button" data-id="coat" aria-label="Coat"></button>
+          <button class="hotspot hotspot--laptop" type="button" data-id="laptop" aria-label="Laptop">
+            <img class="hotspot-obj" src="assets/images/obj_laptop.png" alt="" draggable="false" />
+          </button>
+          <button class="hotspot hotspot--window" type="button" data-id="window" aria-label="Window">
+            <img class="hotspot-obj" src="assets/images/obj_window.png" alt="" draggable="false" />
+          </button>
+          <button class="hotspot hotspot--note" type="button" data-id="note" aria-label="Note">
+            <img class="hotspot-obj" src="assets/images/obj_note.png" alt="" draggable="false" />
+          </button>
+          <button class="hotspot hotspot--photo" type="button" data-id="photo" aria-label="Photograph">
+            <img class="hotspot-obj" src="assets/images/obj_photo.png" alt="" draggable="false" />
+          </button>
+          <button class="hotspot hotspot--coat" type="button" data-id="coat" aria-label="Coat">
+            <img class="hotspot-obj" src="assets/images/obj_coat.png" alt="" draggable="false" />
+          </button>
         </div>
       </div>
       <button type="button" class="explore-cta" id="btnToDial" disabled>Use the phone</button>
@@ -75,6 +86,15 @@
     </div>
 
     <div id="loreHost"></div>
+
+    <div id="objLightbox" class="night-hidden" aria-modal="true" role="dialog">
+      <div id="objLightbox__inner">
+        <button type="button" id="objLightbox__close" aria-label="Close">×</button>
+        <img id="objLightbox__img" src="" alt="" />
+        <p id="objLightbox__title"></p>
+        <p id="objLightbox__text"></p>
+      </div>
+    </div>
 
     <script src="js/state.js"></script>
     <script src="js/audio.js"></script>

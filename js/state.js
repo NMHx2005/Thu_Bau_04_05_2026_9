@@ -10,6 +10,8 @@
   var STORAGE_CLUES = "signalLost_clues";
   var STORAGE_DONE_SIGNAL1 = "signalLost_doneSignal1";
   var STORAGE_DONE_MEMORY = "signalLost_doneMemoryDrag";
+  var STORAGE_DONE_HIDDEN = "signalLost_doneHidden";
+  var STORAGE_DONE_SIGNAL3 = "signalLost_doneSignal3";
   var STORAGE_PHRASES = "signalLost_phrases";
 
   var TRUST_MIN = 0;
@@ -89,9 +91,25 @@
     setBool(STORAGE_DONE_MEMORY, v);
   }
 
+  function getDoneHidden() {
+    return readBool(STORAGE_DONE_HIDDEN);
+  }
+
+  function setDoneHidden(v) {
+    setBool(STORAGE_DONE_HIDDEN, v);
+  }
+
+  function getDoneSignal3() {
+    return readBool(STORAGE_DONE_SIGNAL3);
+  }
+
+  function setDoneSignal3(v) {
+    setBool(STORAGE_DONE_SIGNAL3, v);
+  }
+
   /**
    * Award +1 clue once per milestone kind. Returns true if a clue was added.
-   * Week 9 (≈50%): 'signal1' | 'memory'
+   * 'signal1' | 'memory' | 'hidden' | 'signal3'
    */
   function tryAwardClue(kind) {
     if (kind === "signal1") {
@@ -106,7 +124,29 @@
       addClue();
       return true;
     }
+    if (kind === "hidden") {
+      if (getDoneHidden()) return false;
+      setDoneHidden(true);
+      addClue();
+      return true;
+    }
+    if (kind === "signal3") {
+      if (getDoneSignal3()) return false;
+      setDoneSignal3(true);
+      addClue();
+      return true;
+    }
     return false;
+  }
+
+  /**
+   * Returns a final words string for use by ending pages.
+   * Uses the first stored phrase if available, otherwise a fallback.
+   */
+  function getFinalWords() {
+    var phrases = getPhrases();
+    if (phrases.length > 0) return phrases[0];
+    return "still here";
   }
 
   function getPhrases() {
@@ -151,6 +191,8 @@
     localStorage.removeItem(STORAGE_CLUES);
     localStorage.removeItem(STORAGE_DONE_SIGNAL1);
     localStorage.removeItem(STORAGE_DONE_MEMORY);
+    localStorage.removeItem(STORAGE_DONE_HIDDEN);
+    localStorage.removeItem(STORAGE_DONE_SIGNAL3);
     localStorage.removeItem(STORAGE_PHRASES);
   }
 
@@ -164,8 +206,11 @@
     tryAwardClue: tryAwardClue,
     getDoneSignal1: getDoneSignal1,
     getDoneMemoryDrag: getDoneMemoryDrag,
+    getDoneHidden: getDoneHidden,
+    getDoneSignal3: getDoneSignal3,
     getPhrases: getPhrases,
     addPhrase: addPhrase,
+    getFinalWords: getFinalWords,
     normalizeDialInput: normalizeDialInput,
     isCorrectNoteNumber: isCorrectNoteNumber,
     NOTE_PHONE_DIGITS: NOTE_PHONE_DIGITS,

@@ -1,7 +1,7 @@
 /**
  * SIGNAL LOST — Week 9 (≈50%): Night 2
- * Includes: apps exploration + memory sortable + chat + one free-text reply.
- * Excludes (Week 11): hidden thread, Night 3, endings.
+ * Includes: apps exploration + memory sortable + chat + one free-text reply + hidden thread (clue 3).
+ * Excludes (Week 11): Night 3, endings.
  */
 (function () {
   "use strict";
@@ -48,17 +48,135 @@
     }
 
     if (name === "notes") {
+      var alreadyFound =
+        window.SignalLostState &&
+        window.SignalLostState.getDoneHidden &&
+        window.SignalLostState.getDoneHidden();
+
       body.innerHTML =
-        "<p>To-do (never done):</p><ul><li>return call</li><li>water plants</li><li>say it plainly</li></ul>" +
-        "<p>Drafts:</p><p>“I don’t want to disappear mid-sentence.”</p>" +
-        "<p style='color:#9898b0;font-size:0.72rem'>Week 9 build: the archive is not available yet.</p>";
+        "<p>To-do (never done):</p>" +
+        "<ul><li>return call</li><li>water plants</li><li>say it plainly</li></ul>" +
+        "<p>\u201cI don\u2019t want to disappear mid-sentence.\u201d</p>" +
+        "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0'/>" +
+        "<div id='hiddenThreadBtn' style='cursor:pointer;color:" +
+          (alreadyFound ? "#6c63ff" : "#9898b0") +
+          ";font-size:0.72rem;padding:6px 0;user-select:none'>" +
+          (alreadyFound ? "\u25be" : "\u25b8") +
+          " Drafts \u2014 3 unsent" +
+          (!alreadyFound ? " <span style='color:#6c63ff;font-size:0.65rem'>[tap]</span>" : "") +
+        "</div>" +
+        "<div id='hiddenThread' style='display:" + (alreadyFound ? "block" : "none") + ";margin-top:10px'>" +
+          "<div style='text-align:right;margin-bottom:10px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 \u2014 11:47 PM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I should have said something at the entrance. You were right there." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Not delivered</span>" +
+          "</div>" +
+          "<div style='text-align:right;margin-bottom:10px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 \u2014 11:52 PM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I kept the number. Deleted it three times. Kept it anyway." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Not delivered</span>" +
+          "</div>" +
+          "<div style='text-align:right;margin-bottom:14px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 3 \u2014 12:03 AM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I don\u2019t think you\u2019ll check this. I think that\u2019s why I\u2019m sending it." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Not delivered</span>" +
+          "</div>" +
+          "<div id='hiddenClueNotice' style='display:" + (alreadyFound ? "block" : "none") +
+            ";text-align:center;font-size:0.65rem;color:#6c63ff;padding:6px 0'>clue 3 found</div>" +
+        "</div>";
+
+      var btn = body.querySelector("#hiddenThreadBtn");
+      var thread = body.querySelector("#hiddenThread");
+      var notice = body.querySelector("#hiddenClueNotice");
+
+      if (btn && thread && !alreadyFound) {
+        btn.addEventListener("click", function () {
+          thread.style.display = "block";
+          btn.innerHTML = "\u25be Drafts \u2014 3 unsent";
+          btn.style.color = "#6c63ff";
+          if (window.SignalLostState) {
+            var awarded = window.SignalLostState.tryAwardClue("hidden");
+            if (awarded && notice) {
+              notice.style.display = "block";
+              if (window.SignalLostAudio) window.SignalLostAudio.playNotification();
+            }
+          }
+        });
+      }
       return;
     }
 
     if (name === "browser") {
+      var alreadyFoundBrowser =
+        window.SignalLostState &&
+        window.SignalLostState.getDoneHidden &&
+        window.SignalLostState.getDoneHidden();
+
       body.innerHTML =
-        "<p>Search history — last day:</p><ul><li>how late does the library close</li><li>park bench near east entrance</li><li>can you hear a phone ring through a door</li></ul>" +
-        "<p style='color:#9898b0;font-size:0.72rem'>Week 9 build: draft sync is not available yet.</p>";
+        "<p>Search history — last day:</p>" +
+        "<ul>" +
+          "<li>how late does the library close</li>" +
+          "<li>park bench near east entrance</li>" +
+          "<li>can you hear a phone ring through a door</li>" +
+        "</ul>" +
+        "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0'/>" +
+        "<div id='draftSyncBtn' style='cursor:pointer;color:" +
+          (alreadyFoundBrowser ? "#6c63ff" : "#9898b0") +
+          ";font-size:0.72rem;padding:6px 0;user-select:none'>" +
+          (alreadyFoundBrowser ? "▾" : "▸") +
+          " Draft sync — 3 pending" +
+          (!alreadyFoundBrowser ? " <span style='color:#6c63ff;font-size:0.65rem'>[sync]</span>" : "") +
+        "</div>" +
+        "<div id='draftSyncThread' style='display:" + (alreadyFoundBrowser ? "block" : "none") + ";margin-top:10px'>" +
+          "<div style='text-align:right;margin-bottom:10px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 — 11:47 PM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I should have said something at the entrance. You were right there." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Send failed</span>" +
+          "</div>" +
+          "<div style='text-align:right;margin-bottom:10px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 — 11:52 PM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I kept the number. Deleted it three times. Kept it anyway." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Send failed</span>" +
+          "</div>" +
+          "<div style='text-align:right;margin-bottom:14px'>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 3 — 12:03 AM</span>" +
+            "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
+              "I don’t think you’ll check this. I think that’s why I’m sending it." +
+            "</span>" +
+            "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Send failed</span>" +
+          "</div>" +
+          "<div id='draftSyncNotice' style='display:" + (alreadyFoundBrowser ? "block" : "none") +
+            ";text-align:center;font-size:0.65rem;color:#6c63ff;padding:6px 0'>clue 3 found</div>" +
+        "</div>";
+
+      var syncBtn = body.querySelector("#draftSyncBtn");
+      var syncThread = body.querySelector("#draftSyncThread");
+      var syncNotice = body.querySelector("#draftSyncNotice");
+
+      if (syncBtn && syncThread && !alreadyFoundBrowser) {
+        syncBtn.addEventListener("click", function () {
+          syncThread.style.display = "block";
+          syncBtn.innerHTML = "▾ Draft sync — 3 pending";
+          syncBtn.style.color = "#6c63ff";
+          if (window.SignalLostState) {
+            var awarded = window.SignalLostState.tryAwardClue("hidden");
+            if (awarded && syncNotice) {
+              syncNotice.style.display = "block";
+              if (window.SignalLostAudio) window.SignalLostAudio.playNotification();
+            }
+          }
+        });
+      }
       return;
     }
 
