@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGNAL LOST. Ending</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/game-frame.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Courier New", monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        text-align: center;
+        transition: background-color 4s ease, color 4s ease;
+      }
+      body.theme-found {
+        background: #000;
+        color: #e8e8f0;
+      }
+      body.theme-static {
+        background: #0a0a12;
+        color: #c8c8d8;
+      }
+      body.theme-notyet {
+        background: #1a1a2e;
+        color: #e8e8f0;
+      }
+      body.theme-static.end-static {
+        background-color: #000;
+        color: #000;
+      }
+      #stage-found {
+        max-width: 34rem;
+        line-height: 1.65;
+      }
+      .sub {
+        margin-top: 1.5rem;
+        color: #9898b0;
+        font-size: 0.85rem;
+      }
+      #tape {
+        max-width: 32rem;
+        line-height: 1.6;
+        opacity: 1;
+        transition: opacity 2.8s ease;
+      }
+      #tape.fade {
+        opacity: 0;
+      }
+      .box {
+        max-width: 30rem;
+        line-height: 1.6;
+      }
+      .shell-btn {
+        margin-top: 18px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(108, 99, 255, 0.45);
+        background: rgba(108, 99, 255, 0.15);
+        color: #e8e8f0;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        font-size: 0.8rem;
+      }
+      .shell-hidden {
+        display: none !important;
+      }
+      /* NOT YET — UNKNOWN voice line */
+      .unknown-voice {
+        font-style: italic;
+        color: #9090c8;
+        font-size: 1.05rem;
+      }
+      /* NOT YET — quiet memory */
+      .memory-line {
+        color: #9898b0;
+        font-size: 0.85rem;
+        font-style: italic;
+        margin-top: 1.1rem;
+      }
+      /* STATIC — blinking cursor */
+      .tape-cursor {
+        display: inline-block;
+        width: 0.55em;
+        background: currentColor;
+        animation: cursor-blink 0.7s step-end infinite;
+        vertical-align: text-bottom;
+        height: 1.1em;
+        margin-left: 1px;
+      }
+      @keyframes cursor-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+    </style>
+  </head>
+  <body class="theme-found" id="shellBody">
+    <div id="view-found" class="shell-hidden">
+      <div id="stage-found">
+        <p id="line1"></p>
+        <p class="sub" id="line2">they'll hear it. somehow.</p>
+        <p class="sub" id="finalEcho"></p>
+      </div>
+    </div>
+
+    <p id="view-static" class="shell-hidden">it's okay. they already know.</p>
+
+    <div id="view-notyet" class="box shell-hidden">
+      <p id="p1"></p>
+      <p id="p2" style="color: #9898b0; font-size: 0.85rem"></p>
+      <div id="actions"></div>
+    </div>
+
+    <script src="js/gameFrame.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/stateNight3Extend.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/audioNight3Extend.js"></script>
+    <script src="js/ending.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var outcome = (params.get("outcome") || "static").toLowerCase();
+        if (outcome !== "found" && outcome !== "static" && outcome !== "notyet") {
+          outcome = "static";
+        }
+
+        var body = document.getElementById("shellBody");
+        body.className = "theme-" + outcome;
+
+        /* Sync inner div class so game-frame.css theme rules apply correctly */
+        var innerDiv = document.querySelector(".game-viewport__inner");
+        if (innerDiv) {
+          innerDiv.classList.remove("theme-found", "theme-static", "theme-notyet");
+          innerDiv.classList.add("theme-" + outcome);
+        }
+
+        function show(id) {
+          ["view-found", "view-static", "view-notyet"].forEach(function (vid) {
+            document.getElementById(vid).classList.toggle("shell-hidden", vid !== id);
+          });
+        }
+
+        if (outcome === "found") {
+          show("view-found");
+          document.title = "SIGNAL FOUND";
+          document.getElementById("line1").textContent =
+            window.SignalLostEnding.readFinalLine() || "\u2014";
+          document.getElementById("finalEcho").textContent = "I love you. Call me back when you can.";
+          if (window.SignalLostAudio) {
+            window.SignalLostAudio.resume();
+            setTimeout(function () {
+              window.SignalLostAudio.playEndingFoundSequence(function () {
+                setTimeout(function () {
+                  body.style.transition = "background-color 6s ease, color 6s ease";
+                  body.style.backgroundColor = "#f5f5f8";
+                  body.style.color = "#1a1a2e";
+                }, 800);
+              });
+            }, 1200);
+          }
+          return;
+        }
+
+        if (outcome === "static") {
+          show("view-static");
+          document.title = "STATIC";
+          var tape = document.getElementById("view-static");
+          tape.id = "tape";
+
+          /* Typewriter that gets cut off mid-word by the fade */
+          var fullText = "it's okay. they already know.";
+          var charIdx = 0;
+          var cursor = document.createElement("span");
+          cursor.className = "tape-cursor";
+          tape.textContent = "";
+          tape.appendChild(cursor);
+          var typeTimer = setInterval(function () {
+            if (charIdx < fullText.length) {
+              tape.insertBefore(document.createTextNode(fullText[charIdx]), cursor);
+              charIdx++;
+            } else {
+              clearInterval(typeTimer);
+            }
+          }, 72);
+
+          if (window.SignalLostAudio) {
+            window.SignalLostAudio.resume();
+            window.SignalLostAudio.playEndingStaticProfile();
+          }
+
+          /* Fade starts at 2000ms — typewriter gets severed mid-word */
+          setTimeout(function () {
+            clearInterval(typeTimer);
+            cursor.style.animation = "none";
+            cursor.style.opacity = "0";
+            tape.classList.add("fade");
+          }, 2000);
+          setTimeout(function () {
+            body.classList.add("end-static");
+          }, 4200);
+          return;
+        }
+
+        show("view-notyet");
+        document.title = "NOT YET";
+        var S = window.SignalLostState;
+        var round = S.getNotYetRound();
+
+        var p1El = document.getElementById("p1");
+        var p2El = document.getElementById("p2");
+        var act = document.getElementById("actions");
+        act.innerHTML = "";
+
+        function goStatic() {
+          window.location.href = "ending-shell.html?outcome=static";
+        }
+
+        if (round >= 1) {
+          /* Second pass — player already chose not-yet once */
+          p1El.className = "";
+          p1El.textContent = "Second pass: you already chose not-yet once. The line won\u2019t keep humoring the same dodge.";
+          p2El.textContent = "If you end here again, you route to STATIC. This is the last branch before the tape runs out.";
+          var b = document.createElement("button");
+          b.className = "shell-btn";
+          b.textContent = "Let the tape run out (\u2192 STATIC)";
+          b.onclick = goStatic;
+          act.appendChild(b);
+        } else {
+          /* First visit — UNKNOWN's voice, then a quiet memory, then delayed buttons */
+          p1El.className = "unknown-voice";
+          p1El.textContent = "then stay a little longer.";
+          p2El.className = "memory-line";
+          p2El.textContent = "the weight of the coat by the door. a room already cooling. you meant to go back.";
+
+          act.style.opacity = "0";
+
+          /* Buttons fade in after the memory has time to settle */
+          setTimeout(function () {
+            var stay = document.createElement("button");
+            stay.className = "shell-btn";
+            stay.textContent = "Stay here (round 2)";
+            stay.onclick = function () {
+              S.setNotYetRound(1);
+              p1El.className = "";
+              p1El.textContent = "Round 2: choosing \u201cNot yet again\u201d routes to STATIC, not a punishment, just where weak signal goes.";
+              p2El.className = "";
+              p2El.textContent = "A small ordinary thing returns: rain mistaken for applause on the window.";
+              act.innerHTML = "";
+              var b2 = document.createElement("button");
+              b2.className = "shell-btn";
+              b2.textContent = "Not yet again \u2192 STATIC";
+              b2.onclick = goStatic;
+              act.appendChild(b2);
+            };
+            var enough = document.createElement("button");
+            enough.className = "shell-btn";
+            enough.textContent = "Enough (\u2192 STATIC now)";
+            enough.style.marginLeft = "12px";
+            enough.onclick = goStatic;
+            act.appendChild(stay);
+            act.appendChild(enough);
+            act.style.transition = "opacity 0.9s ease";
+            act.style.opacity = "1";
+          }, 3500);
+        }
+
+        if (window.SignalLostAudio) {
+          window.SignalLostAudio.resume();
+          window.SignalLostAudio.playEndingNotYetPing();
+        }
+      })();
+    </script>
+  </body>
+</html>

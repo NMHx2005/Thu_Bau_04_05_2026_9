@@ -1,264 +1,508 @@
-# SIGNAL LOST — Tiến độ Tuần 9 (≈50% phạm vi cuối cùng)
+# SIGNAL LOST. Tài liệu dự án hoàn chỉnh
 
-Tài liệu này được viết để **đọc trực tiếp và dùng làm tài liệu tham khảo sống** trong buổi thuyết trình không chính thức Tuần 9. Nội dung **cực kỳ chi tiết**, được liên kết trực tiếp với ba tiêu chí đánh giá, và bao gồm **demo script hoàn chỉnh**, **file map**, và **ngân hàng Q&A** với câu trả lời gắn với source file cụ thể.
+Tài liệu này bao phủ **toàn bộ phạm vi dự án** gồm Prologue, Night 1, Night 2, Night 3, và hệ thống ba nhánh ending. Nó thay thế tài liệu checkpoint Tuần 9 trước đó (50%).
 
 ---
 
-## Phạm vi: những gì tôi demo tại Tuần 9
+## Phạm vi đầy đủ
 
-Tại Tuần 9, tôi demo khoảng **50% phạm vi dự án cuối cùng**, triển khai qua **Night 1 (hoàn chỉnh)** và **Night 2 (slice hoàn chỉnh)**:
-
-- **Prologue** — 4 slide reset state và chuyển vào Night 1
-- **Night 1 Khám phá** — 5 vật thể hotspot hiển thị bằng wakeup sequence; mỗi vật mở lightbox zoom kèm tiêu đề và lore
-- **Night 1 Quay số** — nhập số điện thoại với chuẩn hoá ký tự, phản hồi narrative khi sai số, số đúng mở khoá chat
-- **Night 1 Chat** — đối thoại scripted với Unknown, lựa chọn của player ảnh hưởng trust, beat có điều kiện nếu đã vào Coat
-- **Night 1 Signal Puzzle** — canvas noise/reveal điều khiển bằng slider; hoàn thành nhận clue 1 (idempotent)
-- **Chuyển cảnh Night 1 → Night 2** — animation mi mắt đóng + chữ interstitial "Night One ends. The signal holds." + mi mắt mở ở Night 2
-- **Night 2 Apps** — Photos, Notes, Browser, Voicemail; copy Voicemail đổi tại ngưỡng trust T ≥ 5
-- **Night 2 Sắp xếp ký ức** — jQuery UI sortable; thứ tự đúng điền slot 5 bằng "rest" và nhận clue 2 (idempotent)
-- **Night 2 Chat + Free-text** — lựa chọn ảnh hưởng trust; một ô nhập tự do khớp từ khoá; cụm từ lưu vào localStorage
-- **Night 2 Hidden Thread** — tin nhắn lưu trữ trong cả Notes và Browser tiết lộ 3 tin nhắn chưa giao từ chính số của player; nhận clue 3 (idempotent)
-- **State liên tục** — trust, clues, bốn cờ milestone idempotent, và một mảng phrases trong localStorage; `resetGame()` chạy khi tải index
-
-## Những gì ngoài phạm vi Tuần 9 (có chủ đích)
-
-- Night 3: heartbeat puzzle, timed chat, word bank
-- Routing ending: SIGNAL FOUND / NOT YET / STATIC
-- Night 3 milestone (cờ `signal3` đã stub trong state nhưng chưa kích hoạt)
+| Phase | Trạng thái |
+|---|---|
+| Prologue (4 slide, reset state) | Hoàn chỉnh |
+| Night 1. Khám phá + dial + chat + signal decode | Hoàn chỉnh |
+| Night 2. Apps + memory drag + chat + free-text + hidden thread | Hoàn chỉnh |
+| Night 3. Heartbeat puzzle + timed chat + reveal + word bank | Hoàn chỉnh |
+| Ending routing (SIGNAL FOUND / NOT YET / STATIC) | Hoàn chỉnh |
+| Game frame (viewport 1200px 16:9, centered) | Hoàn chỉnh |
+| Dial decoy mechanic (số sai lần đầu, rung, rồi số đúng) | Hoàn chỉnh |
 
 ---
 
 ## 1. Tổng quan dự án
 
-**SIGNAL LOST** là một game tường thuật tương tác chạy trên trình duyệt, được trình bày hoàn toàn qua giao diện **điện thoại mô phỏng**. Không có HUD game truyền thống. Câu chuyện — về danh tính, ký ức, và những điều chưa được nói — được kể qua:
+**SIGNAL LOST** là một game tường thuật tương tác chạy hoàn toàn trên trình duyệt, được trình bày qua **giao diện điện thoại mô phỏng**. Không có HUD game truyền thống. Câu chuyện về danh tính, ký ức, và những điều chưa được nói được kể qua:
 
-- Giao diện **chat** với một liên lạc tên "Unknown"
-- **Hotspot môi trường** hoạt động như thám hiểm point-and-click
-- **Mini-puzzle** kiêm thiết bị narrative (signal decode, sắp xếp ký ức, hidden thread)
-- **State liên tục** mang theo lựa chọn của player qua các trang
+- Chat với một liên lạc tên "Unknown"
+- Hotspot môi trường hoạt động như thám hiểm point-and-click
+- Mini-puzzle kiêm thiết bị narrative
+- State liên tục mang lựa chọn qua các trang
 
-Dự án được xây dựng bằng vanilla HTML, CSS, và JavaScript — không framework, không build tool — để thể hiện khả năng kiểm soát trực tiếp môi trường trình duyệt.
-
----
-
-## 2. Tiêu chí đánh giá — liên kết chi tiết
+Xây dựng bằng vanilla HTML, CSS, và JavaScript thuần. Không framework, không build tool.
 
 ---
 
-### A) Phát triển các yếu tố đồ hoạ / giao diện / thiết kế
+## 2. Luồng game đầy đủ
 
-#### A1) Khái niệm UI tổng thể: điện thoại như khung tường thuật
-
-Toàn bộ game được trải nghiệm qua màn hình điện thoại. Đây không phải quyết định thẩm mỹ — đây là quyết định thiết kế cốt lõi khiến narrative hoạt động:
-
-- Player không bao giờ thấy UI game truyền thống. Mọi tương tác (hotspot, dial pad, chat, puzzle) đều được trình bày như thể player đang cầm và sử dụng điện thoại.
-- "Unknown" là liên lạc trong điện thoại — không phải người dẫn chuyện vô hình — điều này khiến cược cảm xúc cảm thấy thật.
-- UI điện thoại tạo ra sự gần gũi và ngột ngạt phù hợp với chủ đề câu chuyện.
-
-**Vị trí trong code:**
-
-- `signal-9/night1.html` — layout Night 1 (cảnh khám phá, dial pad, phone chat, signal panel)
-- `signal-9/night2.html` — layout Night 2 (lưới app, app layer, giai đoạn memory, giai đoạn chat)
-- `signal-9/css/base.css` — biến CSS, reset, container màn hình điện thoại
-- `signal-9/css/phone.css` — khung điện thoại, thanh trạng thái, chat bubble, typing indicator, choices
-- `signal-9/css/night.css` — vị trí hotspot, overlay lore, dial pad, signal panel, overlay mi mắt, lightbox, chữ chuyển cảnh, thẻ memory
-- `signal-9/css/animations.css` — animation tin nhắn vào, hỗ trợ reduced-motion
-
-**Nói gì khi chỉ vào UI:**
-
-> "Mục tiêu thiết kế là player cảm thấy như đang dùng điện thoại thật — không phải chơi game có skin điện thoại. Mọi hotspot, overlay, và chat bubble đều củng cố khung đó."
+```
+index.html (Prologue, reset state)
+  ↓
+night1.html
+  Khám phá phòng → dial pad (số decoy → rung → số đúng) → chat → signal decode
+  ↓
+night2.html
+  Apps (Photos / Notes / Browser / Voicemail) → memory drag → chat → free-text → hidden thread
+  ↓
+continue-to-night3.html (cổng vào Night 3, yêu cầu hidden thread)
+  ↓
+night3.html
+  Heartbeat puzzle → timed chat → reveal chat → word bank → nút routing
+  ↓
+ending-shell.html?outcome=found|static|notyet
+```
 
 ---
 
-#### A2) Cảnh Night 1: 5 vật thể hotspot với wakeup animation
+## 3. Night 1. Khám phá phòng ngủ
 
-Night 1 mở ra với cảnh phòng ngủ. Năm vật thể có thể nhấp. Mỗi vật mang một mảnh câu chuyện.
+### 3.1. Wakeup sequence
 
-**Wakeup sequence:**
+Khi `night1.html` tải, hai dải đen (`#eyeLidTop`, `#eyeLidBottom`) che màn hình. Chúng animate như mi mắt: nháy ba lần rồi mở hoàn toàn trong 2.8 giây. Sau khi mi mắt mở, `runWakeupSequence()` fade in từng ảnh vật thể so le 400ms theo thứ tự: window → photo → laptop → coat → note.
 
-Khi `night1.html` tải, hai dải đen (`#eyeLidTop`, `#eyeLidBottom`) che phủ màn hình. Chúng animate như mi mắt — nháy ba lần rồi mở hoàn toàn trong 2.8 giây — trước khi căn phòng hiện ra. Điều này truyền đạt "player vừa thức dậy" mà không cần chữ nào.
+Điều này truyền đạt "player vừa thức dậy" mà không cần chữ.
 
-Sau khi mi mắt mở hoàn toàn, `runWakeupSequence()` tiết lộ từng ảnh vật thể với fade-in so le (cách 400ms, theo thứ tự: window → photo → laptop → coat → note).
+**Code:** `signal-9/js/night1.js` → `runWakeupSequence()`
 
-**Năm vật thể và vai trò của chúng:**
+### 3.2. Năm vật thể hotspot
 
-| Vật thể | Tiêu đề hiển thị | Vai trò câu chuyện |
+| Vật thể | Tiêu đề | Vai trò |
 |---|---|---|
-| Laptop | The Unsent Draft | Một tin nhắn viết dở, con trỏ vẫn nhấp nháy. Player đang cố nói gì đó và không thể hoàn thành. |
-| Cửa sổ | No Reflection | Mưa trên kính, nhưng không có phản chiếu của player — một clue cài sẵn. Hầu hết player đọc là phong cách nghệ thuật trong lần chơi đầu. |
-| Mảnh giấy | The Number | Một số điện thoại viết tay, hơi mờ: 0427 318 247. Đây là số quay mục tiêu. |
-| Ảnh chụp | The Photograph | Một khuôn mặt mờ trong khung ấm — gần như nhận ra được, không bao giờ hoàn toàn. |
-| Áo khoác | Still Warm | Vẫn còn ấm bên cạnh cửa. Nếu vào trước cuộc gọi, Unknown sẽ nhắc đến trong chat. |
+| Laptop | The Unsent Draft | Tin nhắn viết dở, con trỏ vẫn nhấp nháy |
+| Cửa sổ | No Reflection | Không có phản chiếu. Clue cài sẵn về danh tính |
+| Mảnh giấy | The Number | Số điện thoại 0427 318 247, hơi mờ |
+| Ảnh chụp | The Photograph | Khuôn mặt gần như nhận ra được, không bao giờ hoàn toàn |
+| Áo khoác | Still Warm | Vẫn ấm bên cửa. Nếu vào trước khi gọi, Unknown nhắc đến trong chat |
 
-**Cả năm vật thể phải được mở trước khi giai đoạn quay số mở khoá.** Đây là gating có chủ đích: player phải trải nghiệm không gian trước khi họ có thể liên lạc ra ngoài.
+Phải mở cả năm mới mở khoá nút "Continue to Dial". Đây là gating có chủ đích: player phải trải nghiệm không gian trước khi liên lạc ra ngoài.
 
-**Vị trí trong code:**
+**Code:** `signal-9/js/night1.js` → `var LORE`, `initExplore()`
 
-- Ảnh vật thể: `signal-9/assets/images/night1/obj_*.png`
-- Vị trí hotspot: `.hotspot--laptop`, `.hotspot--window`, `.hotspot--note`, `.hotspot--photo`, `.hotspot--coat` trong `signal-9/css/night.css`
-- Wakeup sequence: `signal-9/js/night1.js` → `runWakeupSequence()`
-- Nội dung lore: `signal-9/js/night1.js` → `var LORE = { ... }`
+### 3.3. Lightbox zoom kiểu shared-element
 
----
+Nhấp hotspot → lightbox zoom từ vị trí vật thể ra trung tâm màn hình (không fade-in từ không có gì). Kỹ thuật:
 
-#### A3) Lightbox zoom: kiểm tra vật thể kiểu shared-element
+1. `hotspotEl.getBoundingClientRect()` đọc vị trí trên màn hình
+2. Tính offset từ trung tâm viewport: `originX = rect.left + rect.width/2 - vw/2`
+3. Set `transform: translate(originX, originY) scale(scaleStart)` không có transition
+4. Force reflow bằng `lb.offsetWidth`
+5. Thêm transition và set `transform: translate(0,0) scale(1)` → trình duyệt nội suy
 
-Nhấp vào bất kỳ hotspot nào mở lightbox toàn màn hình. Ảnh vật thể **animate từ vị trí của nó trên màn hình về trung tâm viewport** — không phải fade-in chung chung từ không có gì. Điều này tạo cảm giác nhặt vật lên.
-
-Tương tác:
-
-1. Overlay tối xuất hiện và làm tối đến `rgba(0,0,0,0.82)`
-2. Ảnh vật thể phóng to từ vị trí hotspot về trung tâm màn hình
-3. Bên dưới ảnh: tiêu đề và lore text của vật thể hiện ra
-4. Nút `×` hoặc nhấp overlay đóng lightbox với scale ngược lại
-
-**Nói gì:**
-
-> "Lightbox dùng `getBoundingClientRect()` để đọc vị trí hotspot trên màn hình, rồi bắt đầu animation từ đúng điểm đó. Cảm giác như player đang nhặt vật lên."
-
-**Vị trí trong code:**
-
-- `signal-9/js/night1.js` → `showLightbox(id, hotspotEl)`, `closeLightbox()`
-- `signal-9/css/night.css` → `#objLightbox`, `#objLightbox__inner`, `#objLightbox__img`, `#objLightbox__title`, `#objLightbox__text`, `#objLightbox__close`
+**Code:** `signal-9/js/night1.js` → `showLightbox()`, `closeLightbox()`
 
 ---
 
-#### A4) Chuyển cảnh: animation mi mắt + chữ interstitial
+## 4. Night 1. Dial pad và decoy mechanic
 
-Khi player nhấp "Continue" cuối puzzle Night 1:
+### 4.1. Cơ chế decoy (số sai lần đầu)
 
-1. Hai dải mi mắt animate **đóng** trong 0.55 giây (ease-in, như nhắm mắt)
-2. Div `#transitionText` xuất hiện trên mi mắt đã đóng: **"Night One ends."** rồi **"The signal holds."** — hai dòng fade in cách nhau 0.25s
-3. Audio mưa fade out
-4. Điều hướng đến `night2.html`
-5. Ở Night 2, hai dải mi mắt bắt đầu đóng và animate **mở** chậm rãi trong 2.2 giây (ease-out, mở một lần — không nháy) — truyền đạt chất lượng ý thức khác biệt
+Đây là cơ chế mới nhất: số gợi ý hiển thị dưới bàn phím **không phải số đúng** ở lần đầu tiên.
 
-Night 1 dùng chuỗi **nháy** (thức dậy mất phương hướng). Night 2 dùng **mở chậm một lần** (có ý thức, tỉnh táo). Sự khác biệt là có chủ đích.
+**Cách hoạt động từng bước:**
 
-**Vị trí trong code:**
+**Lần đầu mở trang:** `buildDecoyDigits()` tạo số giả bằng cách tăng chữ số cuối lên 1 (mod 10). Ví dụ số đúng là `0427318247` → decoy là `0427318248`. Hint hiển thị `0427 318 248`.
 
-- Animation mi mắt Night 1: `@keyframes eyeLidTopBlink`, `@keyframes eyeLidBottomBlink` trong `signal-9/css/night.css`
-- Animation mi mắt Night 2: `@keyframes eyeLidTopOpen`, `@keyframes eyeLidBottomOpen` trong `signal-9/css/night.css`
-- Logic chuyển cảnh: `signal-9/js/night1.js` → `$("btnNight2").addEventListener("click", ...)`
-- Styles chữ interstitial: `#transitionText`, `@keyframes fadeInText` trong `signal-9/css/night.css`
-- HTML: `<div id="eyeLidTop">` và `<div id="eyeLidBottom">` trong `signal-9/night1.html` và `signal-9/night2.html`
+**Player gọi số decoy:** `dialCall` handler kiểm tra: nếu chưa qua decoy (`!dialDecoyPassed()`) và số nhập = decoy → kích hoạt `onDecoyDialComplete()`:
+- Gọi `shakeDialPad()`: thêm class `dial-shake` vào `.dial-pad` → CSS animation lắc ngang
+- `navigator.vibrate([40, 30, 40, 30, 55])` nếu trình duyệt hỗ trợ
+- Hai tone âm thanh thấp qua `SignalLostAudio.playTone()`
+- Hiện overlay: "Wrong line. The handset trembles. Read the note again, then dial."
+- Xóa ô quay số, **cập nhật hint sang số đúng** `0427 318 247`
+- Lưu `sessionStorage.signalLost_dialDecoyPassed = "1"`
 
----
+**Player gọi số đúng:** `isCorrectNoteNumber()` khớp → mở phase-phone, bắt đầu chat Night 1.
 
-#### A5) Giao diện app Night 2: bốn app + hidden thread UI
+**Player gọi số khác hoàn toàn:** `wrongNumberResponse()` như cũ (busy tone / silence / voicemail).
 
-Night 2 hiển thị lưới màn hình chính điện thoại với bốn app. Mỗi app mở một lớp cuộn trong khung điện thoại:
+**Sau refresh:** `sessionStorage` giữ trạng thái. Nếu đã rung lần trước, hint hiển thị số đúng ngay.
 
-- **Photos** — camera roll bị lỗi ngày 3 tháng 3; ảnh mờ hiện rõ một chút khi chạm
-- **Notes** — danh sách công việc sẽ không hoàn thành; trích dẫn nháp; và mục "Drafts — 3 unsent [tap]" thu gọn tiết lộ hidden thread
-- **Browser** — lịch sử tìm kiếm ngày cuối cùng (giờ thư viện, ghế công viên, nghe điện thoại qua cửa); và mục "Draft sync — 3 pending [sync]" tiết lộ thread tương tự
-- **Voicemail** — nội dung bị khoá cho đến ngưỡng trust; ở T ≥ 5 hiện "một tin nhắn chưa nghe" (audio dành cho ending)
+```
+Lần đầu:      hint = "0427 318 248"  (sai 1 số)
+Gọi decoy →  RUNG + overlay "Wrong line"
+              hint đổi = "0427 318 247"  (đúng)
+Gọi đúng  →  vào chat
+```
 
-**Hidden thread UI:** Cả Notes và Browser đều chứa phần có thể khám phá, khi nhấp tiết lộ ba bong bóng tin nhắn căn phải từ chính số của player — tất cả đánh dấu "Not delivered" hoặc "Send failed". Những tin nhắn này không đe doạ. Chúng nói lời tạm biệt mà không dùng từ đó.
+**Code:** `signal-9/js/night1.js` → `buildDecoyDigits()`, `dialDecoyPassed()`, `onDecoyDialComplete()`, `shakeDialPad()`
+**CSS animation:** `signal-9/css/animations.css` → `@keyframes dial-shake`, `.dial-pad.dial-shake`
 
-**Vị trí trong code:**
+### 4.2. Chuẩn hoá input
 
-- `signal-9/night2.html` — lưới app, app layer, giai đoạn memory, giai đoạn chat
-- `signal-9/js/night2.js` → `renderApp(name)` — tất cả bốn khối nội dung app bao gồm hidden thread
+`normalizeDial(s)` loại bỏ mọi ký tự không phải số. Player có thể nhập `"0427 318 247"` hoặc `"0427-318-247"` và vẫn khớp. Không có chuẩn hoá này, mọi biến thể định dạng fail thầm lặng.
 
----
-
-#### A6) Sắp xếp ký ức Night 2
-
-Giao diện kéo-thả sắp xếp dùng jQuery UI. Bốn thẻ ký ức bao gồm bốn sự kiện có timestamp của ngày 3 tháng 3. Một slot thứ năm ghi "what happened next" luôn hiển thị. Khi player khoá đúng thứ tự, Unknown điền slot 5 bằng một từ: **rest**.
-
-**Vị trí trong code:**
-
-- `signal-9/night2.html` — `#memoryList`, `#memoryFifth`, `#memoryRest`, `#btnVerifyMemory`
-- `signal-9/js/night2.js` → `initMemory()`
-- `signal-9/css/night.css` → `.memory-card`, `.memory-slot--framed`
-- `signal-9/css/jquery-overrides.css` — styles kéo sortable
+**Code:** `signal-9/js/night1.js` → `normalizeDial()`, `signal-9/js/state.js` → `isCorrectNoteNumber()`
 
 ---
 
-### B) Phát triển các giải pháp coding tinh vi cho các vấn đề
+## 5. Night 1. Chat với Unknown
 
-#### B1) Chat engine tái sử dụng (script runner)
-
-**Vấn đề:** Hội thoại cần pacing nhất quán, typing indicator, nút lựa chọn, và cập nhật trust qua nhiều night. Hardcode per-page sẽ không bảo trì được.
-
-**Giải pháp:** `SignalLostChat.runScript(steps, opts)` — một step queue runner nhận một mảng và thực thi tuần tự:
+Chat runner `SignalLostChat.runScript()` thực thi mảng step tuần tự:
 
 - `{ type: "unknown", text }` — typing indicator → delay → bubble
-- `{ type: "player", text }` — player bubble tức thì (không delay)
-- `{ type: "choices", options }` — render nút lựa chọn; khi chọn: echo bubble, gọi `addTrust(delta)`, xoá nút
-- `{ type: "wait", ms }` — tạm dừng trước step tiếp theo
+- `{ type: "player", text }` — player bubble tức thì
+- `{ type: "choices", options }` — render nút; khi chọn: echo bubble, gọi `addTrust(delta)`, xóa nút
+- `{ type: "wait", ms }` — tạm dừng
 
-Pacing được tinh chỉnh per-night qua `getDelayMul()` — Night 1 dùng `1.14`, Night 2 dùng `1.12`. Thay đổi multiplier điều chỉnh cảm giác toàn bộ night mà không cần chỉnh từng dòng.
+**Script Night 1 gồm:**
+1. Unknown chào: "I've been waiting for you to call."
+2. Choice 1: "I'm listening" (+1) / "Stop talking in riddles" (-1) / "…" (0)
+3. Unknown nhắc về áo khoác
+4. Choice 2 về áo khoác (+1/-1/0)
+5. **Beat có điều kiện:** nếu `visited.coat === true` → Unknown nói "You already touched the coat."
+6. Choice 3 về 2:47 / cửa sổ không phản chiếu / gửi ảnh
+7. Unknown gửi ảnh bị lỗi → mở signal panel
 
-**Tại sao tinh vi:** Night script là mảng dữ liệu thuần. Engine không được viết lại cho mỗi night — nó được gọi với script array khác. Night 3 sẽ tái sử dụng cùng engine.
-
-**Vị trí trong code:** `signal-9/js/chat.js`
+**Code:** `signal-9/js/night1.js` → `startNight1Chat()`
 
 ---
 
-#### B2) State liên tục với 4-milestone idempotent awarding
+## 6. Night 1. Signal decode puzzle
 
-**Vấn đề:** Tiến trình phải sống qua reload trang. Chơi lại phần đã hoàn thành không được làm tăng số clue hay kích hoạt lại story beat.
+`SignalLostSignalPuzzle.initDecode()` tạo canvas blend noise trên ảnh ẩn:
 
-**Giải pháp:** `signal-9/js/state.js` — module localStorage độc lập phơi bày:
+- Ảnh `LastLocation.png` (hoặc fallback `Bedroom.png`) vẽ trên canvas
+- Lớp noise thủ tục phủ lên ở opacity điều khiển bởi slider
+- Slider ánh xạ tuyến tính: 0 = nhiễu tối đa, 1 = ảnh hoàn toàn rõ
+- Ở 100%: `onComplete()` gọi `tryAwardClue("signal1")` idempotent → clue 1
 
-| Key | Mục đích |
+Sau khi hoàn thành, nút "Continue to Night 2" hiện ra.
+
+**Code:** `signal-9/js/signalPuzzle.js`, `signal-9/js/night1.js` → `startSignalDecode()`
+
+---
+
+## 7. Chuyển cảnh Night 1 → Night 2
+
+1. Mi mắt animate **đóng** 0.55s (ease-in)
+2. Div `#transitionText` hiện: "Night One ends." rồi "The signal holds."
+3. Audio mưa fade out
+4. Điều hướng sang `night2.html`
+5. Night 2 bắt đầu với mi mắt đóng, animate **mở chậm** 2.2s (ease-out, một lần, không nháy)
+
+Night 1 **nháy ba lần** = thức dậy mất phương hướng. Night 2 **mở chậm một lần** = nhận thức có chủ đích. Khác biệt là có chủ đích.
+
+**Code:** `signal-9/js/night1.js` → `$("btnNight2").addEventListener`, `signal-9/css/night.css` → `@keyframes eyeLid*`
+
+---
+
+## 8. Night 2. Bốn app
+
+Night 2 là màn hình chính điện thoại với bốn app. Mỗi app mở lớp cuộn trong khung điện thoại.
+
+| App | Nội dung |
 |---|---|
-| `signalLost_trust` | Điểm trust của player (0–10), clamp |
-| `signalLost_clues` | Tổng clue đã thu thập (0–4) |
-| `signalLost_doneSignal1` | Cờ: đã hoàn thành canvas puzzle Night 1 |
-| `signalLost_doneMemoryDrag` | Cờ: đã hoàn thành sắp xếp ký ức Night 2 |
-| `signalLost_doneHidden` | Cờ: đã khám phá hidden thread |
-| `signalLost_doneSignal3` | Cờ: Night 3 milestone (stub cho Tuần 11) |
-| `signalLost_phrases` | Mảng JSON các văn bản player nhập |
+| Photos | Camera roll bị lỗi ngày 3/3. Ảnh mờ hiện rõ một chút khi chạm |
+| Notes | Danh sách việc sẽ không hoàn thành. Nháp. Mục "Drafts, 3 unsent" tiết lộ hidden thread |
+| Browser | Lịch sử tìm kiếm ngày cuối: giờ thư viện, ghế công viên, nghe điện thoại qua cửa. Mục "Draft sync, 3 pending" tiết lộ hidden thread |
+| Voicemail | Bị khoá cho đến trust T ≥ 5. Ở T ≥ 5 hiện "một tin nhắn chưa nghe" |
 
-`tryAwardClue(kind)` kiểm tra cờ trước. Nếu đã set, trả về `false` — không award clue, không thay đổi state. Điều này làm tất cả milestone an toàn khi chơi lại.
-
-`getFinalWords()` trả về cụm từ đầu tiên trong mảng, hoặc fallback — dùng bởi ending pages để phản chiếu lại lời của player.
-
-`resetGame()` xoá tất cả key — được gọi bởi `index.html` khi tải để mỗi lần chạy prologue bắt đầu mới.
-
-**Nói gì khi chỉ vào code:**
-
-> "Mọi milestone đều là thao tác idempotent. `tryAwardClue('signal1')` an toàn để gọi 100 lần — nó award đúng một lần. Cùng pattern áp dụng cho cả 4 milestone."
-
-**Vị trí trong code:** `signal-9/js/state.js`
+**Code:** `signal-9/js/night2.js` → `renderApp(name)`
 
 ---
 
-#### B3) Chuẩn hoá input và phản hồi sai số có tính narrative
+## 9. Night 2. Sắp xếp ký ức
 
-**Vấn đề:** Input quay số có thể chứa khoảng trắng hoặc dấu câu. Fail thầm lặng khi sai số phá vỡ immersion.
+jQuery UI sortable. Bốn thẻ ký ức với timestamp của ngày 3/3. Một slot thứ năm luôn hiển thị "what happened next". Khi player khoá đúng thứ tự → Unknown điền slot 5: **rest** → `tryAwardClue("memory")` → clue 2.
 
-**Giải pháp:**
-
-- `normalizeDialInput(str)` loại bỏ mọi ký tự không phải số: `"0427 318 247"` → `"0427318247"`
-- `isCorrectNoteNumber(dialString)` chuẩn hoá rồi so sánh với `NOTE_PHONE_DIGITS`
-- `wrongNumberResponse()` chọn ngẫu nhiên từ ba phản hồi: tín hiệu bận (với ba lần `playTone`), im lặng nặng nề, hoặc voicemail nói "Later" — mỗi cái là beat narrative, không phải thông báo lỗi
-
-**Vị trí trong code:**
-
-- Chuẩn hoá: `signal-9/js/state.js` → `normalizeDialInput()`, `isCorrectNoteNumber()`
-- Phản hồi sai số: `signal-9/js/night1.js` → `wrongNumberResponse()`
+**Code:** `signal-9/js/night2.js` → `initMemory()`
 
 ---
 
-#### B4) Bug CSS specificity — conflict vị trí overlay cố định
+## 10. Night 2. Chat và free-text
 
-**Vấn đề phát hiện và giải quyết trong quá trình phát triển:** Rule:
+Sau memory puzzle, Unknown quay lại chat. Sau chat, một ô nhập tự do:
 
+- Input được lowercase và kiểm tra từ khoá: `"sorry"`, `"love"`, `"afraid"/"scared"`, với fallback mặc định
+- Cụm từ chính xác được lưu qua `addPhrase(raw)` trong localStorage (dedup)
+- `getFinalWords()` trả về cụm từ đầu tiên được lưu — dùng bởi ending pages
+
+**Code:** `signal-9/js/night2.js` → `initFreeInput()`, `signal-9/js/state.js` → `addPhrase()`, `getFinalWords()`
+
+---
+
+## 11. Night 2. Hidden thread
+
+Cả Notes và Browser chứa phần có thể mở. Khi nhấp:
+- Ba bong bóng tin nhắn căn phải hiện ra — từ chính số của player
+- Tất cả đánh dấu "Not delivered" hoặc "Send failed"
+- Những tin nhắn này nói lời tạm biệt mà không dùng từ đó
+- `tryAwardClue("hidden")` → clue 3, idempotent
+
+**Tại sao idempotent quan trọng:** Cả hai app gọi cùng `tryAwardClue("hidden")`. Dù player mở Notes trước hay Browser trước, clue chỉ award một lần. Render cũng kiểm tra `getDoneHidden()` để hiện thread ở trạng thái đã mở nếu đã khám phá.
+
+**`getDoneHidden()` cũng là điều kiện mở khoá Night 3.** Không tìm hidden thread → không vào Night 3.
+
+**Code:** `signal-9/js/night2.js` → `renderApp("notes")`, `renderApp("browser")`
+
+---
+
+## 12. Cổng vào Night 3
+
+`continue-to-night3.html` kiểm tra `canEnterNight3()` (= `getDoneHidden()`):
+- Đúng: hiện nút "Enter Night 3"
+- Sai: thông báo khoá, gợi ý tìm hidden thread trước
+
+`night3.html` cũng tự kiểm tra đầu script — nếu chưa đủ điều kiện, redirect về `night2.html`.
+
+---
+
+## 13. Night 3. Heartbeat puzzle
+
+Canvas heartbeat (`SignalLostSignalPuzzle.initHeartbeat()`):
+- Vẽ sóng heartbeat liên tục trên canvas
+- Player phải click vào đúng các đỉnh sóng (peak)
+- Cần khóa đúng 3 đỉnh (`locksNeeded: 3`)
+- Khi hoàn thành: `tryAwardClue("signal3")` → clue 4, rồi chuyển sang timed chat
+
+**Code:** `signal-9/js/signalPuzzle.js`, `signal-9/js/night3.js` → `startHeartbeat()`
+
+---
+
+## 14. Night 3. Soften loop
+
+Một `setInterval` chạy từ khi boot Night 3:
+
+| Bước (×4.5s) | Hiệu ứng |
+|---|---|
+| Bước 4 | Tên liên lạc đổi sang ký hiệu `▣` |
+| Bước 6+ | Phone screen thêm class `phone-screen--soften` (visual blur/fade nhẹ) |
+
+Điều này truyền đạt sự ranh giới giữa nhân vật và Unknown đang mờ dần.
+
+**Code:** `signal-9/js/night3.js` → `startSoftenLoop()`
+
+---
+
+## 15. Night 3. Timed chat (20 giây)
+
+Đồng hồ đếm ngược 20 giây. Hai dòng của Unknown, rồi choices:
+
+- "I hear you." (+2 trust)
+- "I don't believe you." (-2 trust)
+- "…" (0 trust)
+
+Nếu hết thời gian trước khi chọn: game append bubble "…" vào log và tự chuyển tiếp.
+
+**Tại sao có timer:** Timer không phải hình phạt, nó biểu diễn "độ rộng của sự thành thật mà player cho phép trước khi phản xạ lui lại thói quen."
+
+**Code:** `signal-9/js/night3.js` → `startTimedChat()`
+
+---
+
+## 16. Night 3. Reveal chat
+
+Ba dòng của Unknown với pacing chậm nhất (delay mul 1.65):
+
+1. "You're not trying to remember who you are. You're trying to remember what you wanted to say before you couldn't."
+2. "The voice you flinch from isn't a stranger on the line. It's the part of you that learned to speak gently so no one would leave."
+3. "If you want a clean ending, you'll have to stop asking the interface to forgive you first."
+
+Sau khi xong, tự động sang word bank.
+
+**Code:** `signal-9/js/night3.js` → `beginReveal()`
+
+---
+
+## 17. Night 3. Word bank
+
+Player xây câu từ các token:
+
+```
+I / needed / to / say / that / it / was / love / sorry / home / wait / enough
+```
+
+- Nhấp token → append vào câu đang xây
+- `#wordBuilt` hiển thị câu + "…"
+- Nút "Done": gọi `setFinalWords(line)` → lưu vào `localStorage.signalLost_finalWords`
+- Overlay `#finOverlay` hiện câu vừa xây + nút "Reveal ending"
+
+**Code:** `signal-9/js/night3.js` → `startWords()`
+
+---
+
+## 18. Ending routing. Tại sao dẫn đến ending nào?
+
+Đây là phần quan trọng nhất của thiết kế. Khi player nhấp "Reveal ending" trong word bank:
+
+```javascript
+var T = window.SignalLostState.getTrust();
+var C = window.SignalLostState.getClues();
+var outcome = "notyet";
+if (T >= 7 && C >= 3) outcome = "found";
+else if (T >= 4 || C >= 2) outcome = "static";
+window.location.href = "ending-shell.html?outcome=" + outcome;
+```
+
+### Điểm trust (T)
+
+Trust tích lũy qua tất cả các lần chọn:
+
+| Lần chọn | Giá trị |
+|---|---|
+| Night 1 chat, lựa chọn tích cực (ví dụ "I'm listening") | +1 |
+| Night 1 chat, lựa chọn tiêu cực (ví dụ "Stop talking in riddles") | -1 |
+| Night 1 chat, trung lập ("…") | 0 |
+| Night 3 chat, "I hear you." | +2 |
+| Night 3 chat, "I don't believe you." | -2 |
+| Night 3 chat, "…" hoặc hết giờ | 0 |
+| Trust tối thiểu / tối đa | 0 / 10 |
+
+Night 1 có 3 lần chọn (tối đa +3). Night 2 có 1 lần chọn (tối đa +2). Night 3 có 1 lần chọn (tối đa +2). **Tổng tối đa chính xác là 7.** SIGNAL FOUND đòi hỏi perfect play: chọn tích cực trong mọi lần chat ở cả ba night.
+
+### Số clue (C)
+
+| Clue | Điều kiện |
+|---|---|
+| clue 1 (signal1) | Hoàn thành canvas decode puzzle Night 1 |
+| clue 2 (memory) | Hoàn thành memory drag Night 2 đúng thứ tự |
+| clue 3 (hidden) | Tìm thấy hidden thread trong Notes hoặc Browser |
+| clue 4 (signal3) | Hoàn thành heartbeat puzzle Night 3 |
+| Tổng tối đa | 4 |
+
+### Ba kết quả và khi nào dẫn đến mỗi ending
+
+---
+
+#### SIGNAL FOUND (T ≥ 7 **VÀ** C ≥ 3)
+
+**Điều kiện:** cả hai phải đúng — trust cao **và** đã thu thập ít nhất 3/4 clue.
+
+**Ý nghĩa narrative:** Player đã tham gia đầy đủ với Unknown (trust cao), **và** đã khám phá đủ cảnh giới của câu chuyện (clue cao). Đây không chỉ là "chọn đúng" — đây là player đã thực sự trải nghiệm trò chơi một cách cởi mở.
+
+**Tại sao điều kiện AND (không phải OR):** Trust cao không đủ nếu player skip đa số nội dung. Clue cao không đủ nếu player cold và phòng thủ trong chat. Cả hai phải cùng đúng.
+
+**Màn hình:** Nền đen, chữ trắng. Hiển thị câu từ `readFinalLine()` (cụm từ player xây từ word bank). Dòng: "they'll hear it. somehow." Và: "I love you. Call me back when you can." Sau đó nền dần chuyển sáng lên (`#f5f5f8`, `#1a1a2e`) — từ tối đến sáng.
+
+**Audio:** `playEndingFoundSequence()` — chuỗi âm thanh kết thúc đặc biệt.
+
+---
+
+#### STATIC (T ≥ 4 **HOẶC** C ≥ 2)
+
+**Điều kiện:** ít nhất một trong hai — trust trung bình **hoặc** đã tìm được ít nhất 2 clue. Đây là "trung gian" — player đã có mặt nhưng không đủ mở.
+
+**Ý nghĩa narrative:** Tín hiệu đã yếu quá, không đủ để "found" nhưng không phải không có gì. Câu chuyện tan vào tĩnh điện.
+
+**Màn hình:** Nền gần đen (`#0a0a12`), chữ mờ. Văn bản duy nhất: "it's okay. they already know." Sau 2.8s văn bản fade ra. Sau 4.2s nền và chữ đều chuyển sang `#000000` — màn hình đen hoàn toàn.
+
+**Audio:** `playEndingStaticProfile()` — profile nhiễu tĩnh điện.
+
+---
+
+#### NOT YET (T < 4 **VÀ** C < 2)
+
+**Điều kiện:** cả hai đều thấp — player không tham gia hoặc chủ động phòng thủ trong suốt game.
+
+**Ý nghĩa narrative:** "Chưa" là một lựa chọn. Game ghi nhận nó, không trừng phạt nó.
+
+**Cơ chế 2-round:**
+
+**Round 0 (lần đầu vào NOT YET):**
+- Hiển thị: "Not yet is a choice, but the tape remembers how many times you said it."
+- Hiển thị cụm từ cuối cùng player nhập ở Night 2 (hoặc "the kettle clicking off in an empty kitchen")
+- Hai nút: "Stay longer (round 2)" và "Enough (→ STATIC now)"
+
+**Nếu chọn "Stay longer":** `setNotYetRound(1)` — cập nhật trong localStorage. Văn bản đổi sang: "Round 2: choosing 'Not yet again' routes to STATIC, not a punishment, just where weak signal goes." Một nút duy nhất: "Not yet again → STATIC".
+
+**Round 1 (nếu quay lại NOT YET sau khi đã ở round 1):**
+- Hiển thị: "Second pass: you already chose not-yet once. The line won't keep humoring the same dodge."
+- Một nút duy nhất: "Let the tape run out (→ STATIC)"
+
+**NOT YET luôn kết thúc bằng STATIC.** Đây là thiết kế có chủ đích — không có "không hành động" vĩnh viễn.
+
+**Audio:** `playEndingNotYetPing()` — một ping đơn giản.
+
+---
+
+### Bảng tóm tắt routing
+
+| Trust (T) | Clue (C) | Outcome |
+|---|---|---|
+| T ≥ 7 **và** C ≥ 3 | | **SIGNAL FOUND** |
+| T ≥ 4 **hoặc** C ≥ 2 | | **STATIC** |
+| T < 4 **và** C < 2 | | **NOT YET** (→ cuối cùng STATIC) |
+
+*Lưu ý: điều kiện được kiểm tra theo thứ tự ưu tiên — FOUND kiểm tra trước, rồi STATIC, rồi mới NOT YET.*
+
+---
+
+### Con đường đến từng ending
+
+**Để đến SIGNAL FOUND:**
+- Night 1: chọn tích cực tất cả 3 lần → +3 trust
+- Night 1: hoàn thành signal decode → clue 1
+- Night 2: chọn "I'm still here." → +2 trust
+- Night 2: hoàn thành memory drag → clue 2
+- Night 2: tìm hidden thread → clue 3 (bắt buộc để vào Night 3)
+- Night 3: hoàn thành heartbeat → clue 4
+- Night 3: chọn "I hear you." → +2 trust
+- Kết quả: T = 7, C = 4. **Đủ điều kiện SIGNAL FOUND.**
+
+SIGNAL FOUND **hoàn toàn đạt được** nhưng đòi hỏi perfect play: chọn tích cực trong mọi lần chat ở cả ba night. Một lần chọn tiêu cực hoặc trung lập là không đủ trust. Đây là thiết kế chính xác theo proposal.
+
+**Để đến STATIC (đường thực tế nhất):**
+- Bất kỳ người chơi hoàn thành Night 1 + Night 2 + Night 3 đều đến STATIC
+- Ví dụ: T=2, C=3 → `T < 4` nhưng `C >= 2` → STATIC
+- Ví dụ: T=5, C=4 → `T >= 4` → STATIC
+
+**Để đến NOT YET:**
+- Chọn tiêu cực trong mọi lần chat (Night 1 min: -3)
+- Bỏ qua memory drag, bỏ qua hidden thread (nhưng hidden thread là bắt buộc để vào Night 3)
+- Thực tế: nếu đã vào Night 3, clue 3 (hidden) đã được award → C ≥ 1
+- Thêm heartbeat (clue 4) → C ≥ 2 → sẽ vào STATIC, không phải NOT YET
+- **NOT YET chỉ xảy ra nếu player bằng cách nào đó bypass Night 3** hoặc trong edge case trust cực thấp và clue cực thấp.
+
+---
+
+## 19. Hệ thống state (localStorage)
+
+| Key | Mục đích | Phạm vi |
+|---|---|---|
+| `signalLost_trust` | Điểm trust (0–10), clamp | localStorage |
+| `signalLost_clues` | Tổng clue (0–4) | localStorage |
+| `signalLost_doneSignal1` | Cờ: hoàn thành Night 1 decode | localStorage |
+| `signalLost_doneMemoryDrag` | Cờ: hoàn thành memory drag | localStorage |
+| `signalLost_doneHidden` | Cờ: tìm thấy hidden thread | localStorage |
+| `signalLost_doneSignal3` | Cờ: hoàn thành Night 3 heartbeat | localStorage |
+| `signalLost_phrases` | Mảng JSON các cụm từ từ free-text | localStorage |
+| `signalLost_finalWords` | Câu từ word bank Night 3 (override phrases[0]) | localStorage |
+| `signalLost_notYetRound` | Round NOT YET (0, 1, hoặc 2) | localStorage |
+| `signalLost_dialDecoyPassed` | Đã rung lần đầu ở Night 1 chưa | **sessionStorage** |
+
+`tryAwardClue(kind)` là idempotent: kiểm tra cờ trước, nếu đã set trả về `false` ngay. An toàn để gọi nhiều lần.
+
+`resetGame()` xóa tất cả localStorage key. Được gọi bởi `index.html` khi tải.
+
+`stateNight3Extend.js` bổ sung `setFinalWords`, `getFinalWords` (override), `getNotYetRound`, `setNotYetRound`, `canEnterNight3`, `NIGHT3_CONTACT_SYMBOL`. Không sửa `state.js`.
+
+**Code:** `signal-9/js/state.js`, `signal-9/js/stateNight3Extend.js`
+
+---
+
+## 20. Game frame (viewport 1200px, 16:9)
+
+`gameFrame.js` wrap toàn bộ nội dung body trong `.game-viewport > .game-viewport__inner`. Frame 1200px wide, aspect-ratio 16:9, căn giữa trên nền tối. Inner container nhận tất cả class gốc của body.
+
+`fitPhoneInFrame()` scale `.phone-frame` xuống bằng `cqh` nếu chiều cao vẫn quá lớn.
+
+Linked trên tất cả các trang HTML của signal-9.
+
+**Code:** `signal-9/js/gameFrame.js`, `signal-9/css/game-frame.css`
+
+---
+
+## 21. Các giải pháp kỹ thuật đáng chú ý
+
+### CSS specificity bug (phát hiện trong quá trình dev)
+
+Rule:
 ```css
 body.night-bedroom-page > *:not(#finOverlay) {
   position: relative;
   z-index: 1;
 }
 ```
+`:not(#finOverlay)` đóng góp trọng số ID vào specificity → **(1,1,1)**, cao hơn `#eyeLidTop` **(1,0,0)** → mi mắt bị `position: relative` thay vì `position: fixed`.
 
-Đối số `:not(#finOverlay)` đóng góp trọng số ID vào specificity selector, làm nó **(1,1,1)**. Cao hơn `#eyeLidTop` và `#objLightbox` ở **(1,0,0)**, khiến cả hai overlay trở thành `position: relative` thay vì `position: fixed` — animation mi mắt không có hiệu lực, và lightbox xuất hiện ở cuối trang.
-
-**Giải pháp:** Mở rộng danh sách exclusion:
-
+Giải pháp: extend danh sách exclusion:
 ```css
 body.night-bedroom-page > *:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):not(#transitionText):not(#objLightbox):not(#loreHost) {
   position: relative;
@@ -266,392 +510,99 @@ body.night-bedroom-page > *:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):
 }
 ```
 
-**Nói gì:**
+### Hidden thread idempotent qua hai app
 
-> "Đây là bug thật tôi chẩn đoán và sửa trong quá trình phát triển — collision specificity giữa rule reset rộng và selector overlay riêng lẻ. Hiểu cách `:not()` đóng góp trọng số ID vào specificity là chìa khoá."
+Cả Notes và Browser gọi `tryAwardClue("hidden")`. Dù mở app nào trước, clue award đúng một lần. Cả hai cũng kiểm tra `getDoneHidden()` khi render để hiện trạng thái mở rộng nếu đã khám phá.
 
-**Vị trí trong code:** `signal-9/css/night.css` — line 41
+### Canvas noise/reveal (Night 1) vs. canvas heartbeat (Night 3)
 
----
+Cùng module `signalPuzzle.js`, hai mode:
+- `initDecode()`: slider điều khiển opacity noise trên ảnh
+- `initHeartbeat()`: vẽ sóng heartbeat liên tục, player click peak để lock
 
-#### B5) Lightbox zoom kiểu shared-element qua getBoundingClientRect
+### Dial decoy (sessionStorage, không localStorage)
 
-**Vấn đề:** Lightbox fade-in từ trung tâm là bình thường. Vật thể phải có cảm giác được nhặt vật lý từ vị trí của nó trong phòng.
-
-**Giải pháp:**
-
-1. Khi click hotspot, gọi `hotspotEl.getBoundingClientRect()` để lấy vị trí màn hình hiện tại
-2. Tính offset từ trung tâm viewport: `originX = rect.left + rect.width/2 - vw/2`
-3. Set `transform` của lightbox inner div thành `translate(originX, originY) scale(scaleStart)` — đặt nó về mặt thị giác tại hotspot
-4. Loại `transition`, force reflow bằng `lb.offsetWidth`
-5. Thêm lại `transition` và set `transform: translate(0,0) scale(1)` — trình duyệt nội suy từ vị trí hotspot ra trung tâm
-6. Đóng đảo ngược: scale thu nhỏ, opacity giảm, rồi áp lại class `night-hidden`
-
-**Vị trí trong code:** `signal-9/js/night1.js` → `showLightbox(id, hotspotEl)`
+Dùng `sessionStorage` (không phải `localStorage`) để decoy reset về đúng trạng thái khi player bắt đầu session mới, nhưng không reset giữa các reload trong cùng session.
 
 ---
 
-#### B6) Hệ thống animation mi mắt kép
-
-**Vấn đề:** Một overlay opacity-fade không truyền đạt gì về *lý do* màn hình tối. Hai dải dọc trượt ra như mi mắt truyền đạt "mắt đang mở".
-
-**Giải pháp:** Hai div `position: fixed`, mỗi cái `height: 51vh` (overlap 1px để tránh khe hở):
-
-- `#eyeLidTop` — gắn phía trên, animate `translateY(0)` → `translateY(-100%)`
-- `#eyeLidBottom` — gắn phía dưới, animate `translateY(0)` → `translateY(100%)`
-
-Hai cặp keyframe:
-
-- `eyeLidTopBlink` / `eyeLidBottomBlink` (2.8s): nhiều lần mở một phần ở 10%, 32%, rồi mở hoàn toàn ở 72% — truyền đạt thức dậy mất phương hướng ở Night 1
-- `eyeLidTopOpen` / `eyeLidBottomOpen` (2.2s, ease-out): mở chậm một lần — truyền đạt nhận thức có chủ đích ở Night 2
-
-Cho chuyển cảnh Night 1 → Night 2, mi mắt đầu tiên được snap về vị trí mở hoàn toàn (qua inline style), rồi transition về đóng (0.55s ease-in) bằng JavaScript trước khi điều hướng. Night 2 sau đó bắt đầu với mi mắt ở vị trí đóng mặc định và animate mở.
-
-**Vị trí trong code:**
-
-- `signal-9/css/night.css` → `@keyframes eyeLidTopBlink`, `@keyframes eyeLidBottomBlink`, `@keyframes eyeLidTopOpen`, `@keyframes eyeLidBottomOpen`, `#eyeLidTop`, `#eyeLidBottom`
-- Logic chuyển cảnh: `signal-9/js/night1.js` → `$("btnNight2").addEventListener`
-
----
-
-#### B7) Hidden thread idempotent qua hai điểm vào app
-
-**Vấn đề:** Hidden thread có thể tìm thấy từ app Notes hoặc app Browser. Chỉ nên award một clue bất kể player mở cái nào trước hoặc có mở cả hai hay không.
-
-**Giải pháp:** Cả `renderApp("notes")` và `renderApp("browser")` đều gọi cùng `tryAwardClue("hidden")`. Vì `tryAwardClue` là idempotent — nó kiểm tra `getDoneHidden()` trước khi set cờ và tăng clue — award chạy đúng một lần. Cả hai app UI cũng kiểm tra `getDoneHidden()` khi render để hiển thị thread đã mở rộng nếu đã khám phá trước đó.
-
-**Vị trí trong code:** `signal-9/js/night2.js` → `renderApp("notes")`, `renderApp("browser")`; `signal-9/js/state.js` → `tryAwardClue("hidden")`, `getDoneHidden()`
-
----
-
-#### B8) Canvas signal decode puzzle
-
-**Vấn đề:** Một puzzle thematic phù hợp với khái niệm cốt lõi "khôi phục ký ức bị lỗi từ nhiễu".
-
-**Giải pháp:** `SignalLostSignalPuzzle.initDecode()` — canvas-based reveal:
-
-- Ảnh `LastLocation.png` được vẽ trên canvas
-- Lớp noise thủ tục được vẽ phía trên ở opacity điều khiển bởi slider (0 = nhiễu tối đa, 1 = không có nhiễu)
-- Slider ánh xạ tuyến tính đến opacity nhiễu; ảnh hiện rõ khi clarity tăng
-- Ở 100%, `onComplete()` kích hoạt — đúng một lần, kiểm tra ngoài qua `tryAwardClue("signal1")`
-- Nếu file ảnh thiếu, dùng fallback (`Bedroom.png`)
-
-Pixel blending thời gian thực trên canvas thú vị hơn về kỹ thuật và thematic hơn so với hoán đổi ảnh tĩnh.
-
-**Vị trí trong code:** `signal-9/js/signalPuzzle.js`; được gọi từ `signal-9/js/night1.js` → `startSignalDecode()`
-
----
-
-#### B9) Khớp từ khoá free-text và lưu trữ cụm từ
-
-**Vấn đề:** Một ô nhập tự do ở cuối Night 2 cần cảm thấy quan trọng — Unknown nên phản hồi khác nhau dựa trên player nói gì, và văn bản nên có thể khôi phục để dùng sau trong endings.
-
-**Giải pháp:**
-
-- Handler keydown `freeInput` đọc văn bản của player
-- Input chuyển thường được kiểm tra với từ khoá: `"sorry"`, `"love"`, `"afraid"` / `"scared"`, với fallback mặc định
-- Cụm từ chính xác được lưu qua `SignalLostState.addPhrase(raw)` — mảng dedup trong localStorage
-- `getFinalWords()` trả về cụm từ đầu tiên được lưu, dùng bởi ending pages để phản chiếu lại lời của player
-
-**Vị trí trong code:** `signal-9/js/night2.js` → `initFreeInput()`; `signal-9/js/state.js` → `addPhrase()`, `getFinalWords()`
-
----
-
-### C) Khả năng trả lời câu hỏi về công việc được trình bày
-
-Các phần sau chứa demo script, file map, và Q&A bank được chuẩn bị để đáp ứng tiêu chí này.
-
----
-
-## 3. Demo script (Tuần 9, 5–8 phút)
-
-### Mở đầu (30 giây)
-
-Nói:
-
-> "Đây là checkpoint Tuần 9 của tôi cho SIGNAL LOST — một game narrative tương tác chạy trên trình duyệt như giao diện điện thoại mô phỏng. Tôi sẽ đi qua một Night 1 loop hoàn chỉnh và một slice Night 2 hoàn chỉnh, bao gồm khoảng 50% phạm vi dự án cuối cùng. Bao gồm cả 5 hotspot object, chuyển cảnh với animation mi mắt tuỳ chỉnh, canvas puzzle, và cơ chế hidden thread Night 2."
-
-Làm:
-
-- Mở `signal-9/index.html`
-- Ghi chú: "index.html reset toàn bộ localStorage state khi tải"
-- Click qua 4 prologue slide
-
----
-
-### Bước 1 — Thức dậy và khám phá phòng ngủ (Night 1)
-
-Làm:
-
-- Xem animation mi mắt chạy (3 lần nháy trong 2.8s, rồi mở)
-- Xem 5 vật thể fade in lần lượt sau khi mi mắt mở
-
-Nói:
-
-> "Khi Night 1 tải, hai dải đen animate như mi mắt — ba lần nháy nhanh, rồi mở. Điều này nói với player rằng họ vừa thức dậy mà không cần chữ nào. Sau khi mi mắt mở, năm vật thể trong phòng fade in so le, cách nhau 400 millisecond."
-
-Làm:
-
-- Click hotspot **Window**
-
-Nói:
-
-> "Mỗi vật thể mở lightbox zoom từ vị trí vật thể trên màn hình ra trung tâm — dùng `getBoundingClientRect` để đọc vị trí màn hình chính xác. Tiêu đề là 'No Reflection'. Mưa trên kính, nhưng không có phản chiếu của player. Đây là clue cài sẵn — hầu hết player đọc là phong cách nghệ thuật trong lần chơi đầu."
-
-- Đóng. Click **Laptop**:
-
-> "The Unsent Draft — một tin nhắn viết dở, con trỏ vẫn nhấp nháy. Player đang cố nói gì đó và không thể hoàn thành."
-
-- Đóng. Click **Note**:
-
-> "The Number — một số điện thoại viết tay, hơi mờ: 0427 318 247. Đây là số player sẽ quay."
-
-- Đóng. Click **Photograph** và **Coat**:
-
-> "The Photograph — gần như nhận ra được, không bao giờ hoàn toàn. Và Coat — vẫn ấm bên cạnh cửa. Nếu vào trước cuộc gọi, Unknown bắn ra một dòng có điều kiện thêm."
-
-Nói:
-
-> "Cả năm vật thể phải được đọc trước khi giai đoạn quay số mở khoá. Đây là gating có chủ đích."
-
-Chỉ vào:
-
-- `signal-9/js/night1.js` → `initExplore()`, `runWakeupSequence()`, `showLightbox()`
-- `signal-9/css/night.css` → `@keyframes eyeLidTopBlink`, `#objLightbox`
-
----
-
-### Bước 2 — Dial pad và kiểm tra
-
-Làm:
-
-- Nhập số sai → nhấn gọi → hiện phản hồi
-
-Nói:
-
-> "Số sai tạo ra phản hồi narrative — tín hiệu bận, im lặng nặng nề, hoặc voicemail nói 'Later'. Game không bao giờ fail thầm lặng. Input được chuẩn hoá chỉ còn số trước khi so sánh."
-
-Làm:
-
-- Quay **0427 318 247** → gọi
-
-Nói:
-
-> "Khi quay đúng số, Unknown nghe máy ngay lập tức — không chuông. Dòng đầu tiên: 'I have been waiting for you to call.'"
-
-Chỉ vào:
-
-- `signal-9/js/state.js` → `normalizeDialInput()`, `isCorrectNoteNumber()`
-
----
-
-### Bước 3 — Chat với Unknown
-
-Làm:
-
-- Để chat chạy; chọn một lựa chọn
-
-Nói:
-
-> "Chat runner xếp hàng các step — typing indicator, delay, bubble. Lựa chọn được echo lại vào log để player thấy họ nói gì. Mỗi lựa chọn điều chỉnh trust trong localStorage. Vì đã vào Coat trước đó, chú ý dòng có điều kiện thêm từ Unknown."
-
-Chỉ vào:
-
-- `signal-9/js/chat.js` → `runScript()`
-- `signal-9/js/state.js` → `addTrust()`
-
----
-
-### Bước 4 — Signal decode puzzle (canvas)
-
-Làm:
-
-- Kéo slider từ 0 về phía 100%
-
-Nói:
-
-> "Cuối cuộc hội thoại Night 1, Unknown gửi một ảnh bị lỗi. Canvas puzzle blend lớp noise thủ tục lên ảnh ẩn trong thời gian thực — slider điều khiển opacity nhiễu. Ảnh hiện rõ khi clarity tăng. Hoàn thành nhận clue 1, idempotent — chơi lại Night 1 sẽ không award lần thứ hai."
-
-Chỉ vào:
-
-- `signal-9/js/signalPuzzle.js`
-- `signal-9/js/night1.js` → `startSignalDecode()`, `tryAwardClue("signal1")`
-
----
-
-### Bước 5 — Chuyển cảnh sang Night 2
-
-Làm:
-
-- Click "Continue"
-
-Nói:
-
-> "Xem chuyển cảnh: mi mắt animate đóng, chữ xuất hiện — 'Night One ends. The signal holds.' — rồi điều hướng sang Night 2, nơi mi mắt mở chậm rãi. Night 1 nháy để truyền đạt mất phương hướng. Night 2 mở mượt mà — player giờ ý thức hơn."
-
-Chỉ vào:
-
-- `signal-9/js/night1.js` → `$("btnNight2").addEventListener`
-- `signal-9/css/night.css` → `@keyframes eyeLidTopOpen`, `#transitionText`
-
----
-
-### Bước 6 — Apps Night 2
-
-Làm:
-
-- Mở Photos, Notes, Browser, Voicemail lần lượt
-
-Nói:
-
-> "Photos — ký ức bị lỗi của ngày 3 tháng 3, ảnh mờ hiện rõ một phần khi chạm. Notes — danh sách công việc sẽ không hoàn thành, một nháp. Browser — lịch sử tìm kiếm ngày cuối cùng: giờ thư viện, ghế công viên, nghe điện thoại qua cửa. Voicemail — nội dung đổi ở ngưỡng trust T ≥ 5. Nếu bị khoá ở đây, đó là có chủ đích."
-
----
-
-### Bước 7 — Sắp xếp ký ức
-
-Làm:
-
-- Kéo thẻ vào thứ tự đúng → Khoá thứ tự
-
-Nói:
-
-> "Memory drag dùng jQuery UI sortable. Bốn thẻ, bốn timestamp của ngày 3 tháng 3. Thứ tự đúng điền slot 5 bằng một từ: 'rest'. Clue 2 được award, idempotent."
-
-Chỉ vào:
-
-- `signal-9/js/night2.js` → `initMemory()`, `tryAwardClue("memory")`
-
----
-
-### Bước 8 — Chat, free-text, hidden thread
-
-Làm:
-
-- Chọn một lựa chọn trong chat
-- Nhập một reply tự do và nhấn Enter
-
-Nói:
-
-> "Sau memory puzzle, Unknown quay lại chat. Reply tự do được khớp từ khoá — sorry, love, afraid — để xác định phản hồi của Unknown. Cụm từ được lưu trong localStorage và có thể xuất hiện nguyên văn trong ending NOT YET."
-
-Làm:
-
-- Mở Notes → nhấp "Drafts — 3 unsent"
-
-Nói:
-
-> "Trong Notes có một thread lưu trữ. Trong Browser có thread đồng bộ nháp. Cả hai tiết lộ cùng khám phá: tin nhắn gửi từ chính số của player trong giờ cuối mà chưa bao giờ được giao. Chúng nói lời tạm biệt mà không dùng từ đó. Tìm thấy thread award clue 3. Vì cả hai điểm vào đều gọi cùng `tryAwardClue('hidden')` idempotent, clue kích hoạt đúng một lần bất kể player mở app nào trước."
-
-Chỉ vào:
-
-- `signal-9/js/night2.js` → `renderApp("notes")`, `renderApp("browser")`
-- `signal-9/js/state.js` → `tryAwardClue("hidden")`, `getDoneHidden()`
-
----
-
-### Kết (30 giây)
-
-Nói:
-
-> "Tuần 9 demo tất cả hệ thống cốt lõi: Night 1 loop hoàn chỉnh với khám phá vật thể trực quan, lightbox zoom, chuyển cảnh mi mắt, kiểm tra quay số, chat runner tái sử dụng, và canvas puzzle — cộng với slice Night 2 hoàn chỉnh gồm apps, sắp xếp ký ức, free-text chat, và hidden thread. State liên tục và milestone idempotent qua cả hai night. Night 3 — heartbeat puzzle, timed chat, word bank, và ba ending phân nhánh — nằm trong phạm vi Tuần 11."
-
----
-
-## 4. File map
+## 22. File map đầy đủ
 
 | File | Mục đích |
 |---|---|
-| `signal-9/index.html` | Điểm vào; reset state; 4 prologue slide |
-| `signal-9/night1.html` | UI Night 1: cảnh khám phá, dial pad, phone screen, signal panel |
-| `signal-9/night2.html` | UI Night 2: lưới app, app layer, giai đoạn memory, giai đoạn chat |
-| `signal-9/js/night1.js` | Hotspot, lore, wakeup sequence, lightbox, quay số, chat N1, signal decode, chuyển cảnh |
-| `signal-9/js/night2.js` | Apps, sắp xếp ký ức, chat N2, free-text, hidden thread |
-| `signal-9/js/chat.js` | Chat engine tái sử dụng (step queue runner) |
-| `signal-9/js/state.js` | Trust, clues, 4 cờ milestone, phrases, normalizeDialInput, getFinalWords |
-| `signal-9/js/signalPuzzle.js` | Canvas noise/reveal puzzle |
-| `signal-9/js/audio.js` | Loop mưa, thông báo, typing tick |
-| `signal-9/css/night.css` | Vị trí hotspot, overlay, animation mi mắt, lightbox, chữ chuyển cảnh |
-| `signal-9/css/phone.css` | Khung điện thoại, chat bubble, choices, typing indicator |
-| `signal-9/assets/images/night1/` | 5 ảnh vật thể hotspot |
+| `index.html` | Prologue 4 slide, reset state |
+| `night1.html` | UI Night 1: cảnh khám phá, dial pad, phone screen, signal panel |
+| `night2.html` | UI Night 2: lưới app, memory drag, chat |
+| `night3.html` | UI Night 3: heartbeat, timed chat, reveal, word bank |
+| `continue-to-night3.html` | Cổng kiểm tra điều kiện vào Night 3 |
+| `ending-shell.html` | Routing ending duy nhất (nhận `?outcome=`) |
+| `ending-found.html` | Standalone ending FOUND (legacy) |
+| `ending-notyet.html` | Standalone ending NOT YET (legacy) |
+| `ending-static.html` | Standalone ending STATIC (legacy) |
+| `js/night1.js` | Hotspot, lore, wakeup, lightbox, dial decoy, chat N1, signal decode, chuyển cảnh |
+| `js/night2.js` | Apps, memory drag, chat N2, free-text, hidden thread |
+| `js/night3.js` | Heartbeat, soften loop, timed chat, reveal, word bank, routing |
+| `js/chat.js` | Chat engine tái sử dụng (step queue runner) |
+| `js/state.js` | Trust, clues, 4 milestone flags, phrases, normalizeDialInput |
+| `js/stateNight3Extend.js` | setFinalWords, getFinalWords override, notYetRound, canEnterNight3 |
+| `js/audio.js` | Loop mưa, typing tick, tone |
+| `js/audioNight3Extend.js` | Ending audio sequences (found, static, notyet) |
+| `js/signalPuzzle.js` | Canvas decode (Night 1) + canvas heartbeat (Night 3) |
+| `js/ending.js` | readFinalLine(), readPhrases() cho ending pages |
+| `js/gameFrame.js` | Wrap viewport 1200px, fitPhone |
+| `css/base.css` | Biến CSS, reset, phone container |
+| `css/phone.css` | Khung điện thoại, chat bubble, typing indicator |
+| `css/night.css` | Hotspot, overlay, mi mắt, lightbox, memory card |
+| `css/animations.css` | msg-enter, dial-shake |
+| `css/night2-ui.css` | Nút back/continue Night 2 |
+| `css/game-frame.css` | Viewport frame 1200px |
 
 ---
 
-## 5. Q&A bank
+## 23. Q&A bank
 
-### Thiết kế / Giao diện
+### Về ending
 
-**H: Những yếu tố thiết kế nào đã hoàn chỉnh ở Tuần 9?**
-Đ: Night 1 loop trực quan hoàn chỉnh — phòng ngủ với 5 vật thể tương tác, lightbox zoom khi click, animation mi mắt wakeup, dial pad, chat UI, canvas puzzle panel — cộng với slice Night 2 hoàn chỉnh với lưới app, sắp xếp ký ức, và hidden thread UI. Tất cả được style nhất quán theo chủ đề điện thoại.
+**H: Làm sao để đến SIGNAL FOUND? Trust 7 có đạt được không?**
+Đ: Có, đạt được chính xác với perfect play. Night 1 có 3 lần chọn tối đa +1 mỗi lần = +3. Night 2 chat có 1 lần chọn "I'm still here." = +2. Night 3 timed chat có 1 lần chọn "I hear you." = +2. Tổng: 3+2+2 = 7. Đây là ngưỡng chính xác, không phải ngẫu nhiên — FOUND đòi hỏi sự chú ý và cởi mở trong toàn bộ game.
 
-**H: Tại sao dùng UI điện thoại thay vì giao diện game truyền thống?**
-Đ: Câu chuyện về giao tiếp và sự vắng mặt. UI điện thoại làm "Unknown" trở thành một liên lạc đáng tin và các tương tác cảm thấy diegetic — player không phải nhân vật điều khiển nhân vật, họ là nhân vật đang dùng điện thoại của mình. UI hỗ trợ cược cảm xúc trực tiếp.
+**H: NOT YET có phải ending xấu không?**
+Đ: Không. Game không phán xét. "Chưa" là lựa chọn hợp lệ. Hệ thống 2-round cho player cơ hội ở lại với cảm xúc đó mà không bị đẩy ngay sang STATIC. Nhưng cuối cùng, không có "không hành động" vĩnh viễn.
 
-**H: Tại sao vật thể ở Night 1 dùng lightbox thay vì chỉ overlay văn bản?**
-Đ: Hiển thị ảnh thật của vật thể khi nó zoom từ vị trí ra trung tâm củng cố ẩn dụ xúc giác — player đang nhặt nó lên và kiểm tra. Overlay chỉ văn bản đưa player ra khỏi không gian; lightbox giữ họ trong đó.
+**H: Tại sao NOT YET luôn kết thúc bằng STATIC?**
+Đ: STATIC là trạng thái trung tính — tín hiệu đủ yếu để không hoàn chỉnh nhưng vẫn có mặt. Nó là điểm dừng tự nhiên cho cả "chưa sẵn sàng" lẫn "đã cố nhưng không đủ".
 
-**H: Tại sao mi mắt là hai div riêng thay vì một overlay opacity đơn?**
-Đ: Một opacity fade đơn không truyền đạt gì về *lý do* màn hình tối. Hai dải dọc trượt ra như mi mắt truyền đạt hành động vật lý — thức dậy, mở mắt — mà không cần chữ nào. Hành vi khác nhau (ba lần nháy vs. mở chậm một lần) giữa Night 1 và Night 2 truyền đạt sự thay đổi trạng thái ý thức của player.
+**H: Cụm từ word bank được dùng ở đâu trong ending?**
+Đ: `setFinalWords(line)` lưu câu vào `localStorage.signalLost_finalWords`. Trang ending FOUND gọi `readFinalLine()` (từ `ending.js`) → `SignalLostState.getFinalWords()` (override trong `stateNight3Extend.js`) → trả về câu từ word bank. Câu này hiển thị làm dòng chính của ending FOUND.
 
-**H: Tại sao Night 1 nháy ba lần nhưng Night 2 mở mượt mà?**
-Đ: Night 1 biểu thị thức dậy mất phương hướng — nhiều lần nháy truyền đạt cơ thể đang vật lộn để tỉnh táo. Night 2 biểu thị nhận thức có chủ đích hơn sau khi đã xem lại các sự kiện của ngày 3 tháng 3. Easing và timing được tinh chỉnh để cảm thấy khác biệt.
+### Về kỹ thuật
 
----
+**H: Tại sao dial decoy dùng sessionStorage thay vì localStorage?**
+Đ: Decoy chỉ cần reset khi player bắt đầu session mới (tab mới / cửa sổ mới). Nếu dùng localStorage, decoy sẽ không bao giờ reset trừ khi gọi `resetGame()`. sessionStorage cho phép player trải nghiệm lại cơ chế decoy nếu họ đóng và mở lại trình duyệt, nhưng không bị bán lại trong cùng một session chơi.
 
-### Coding / Kiến trúc
+**H: Tại sao Night 3 yêu cầu hidden thread (getDoneHidden) thay vì điều kiện khác?**
+Đ: Hidden thread là khám phá quan trọng nhất của Night 2 về mặt narrative. Nó tiết lộ rằng player đã cố giao tiếp nhưng thất bại. Night 3 là hệ quả của sự thất bại đó. Người chơi không tìm ra sự thật đó không nên vào Night 3.
 
-**H: Lightbox zoom hoạt động như thế nào về kỹ thuật?**
-Đ: `showLightbox(id, hotspotEl)` gọi `hotspotEl.getBoundingClientRect()` để lấy vị trí hotspot trên màn hình. Tính offset từ trung tâm viewport, set `transform` của lightbox inner element để đặt nó tại vị trí hotspot và thu nhỏ về kích thước hotspot, sau đó force reflow bằng `lb.offsetWidth` trước khi thêm CSS transition và set `transform` về trạng thái cuối căn giữa. Trình duyệt nội suy animation đầy đủ.
-
-**H: Làm sao ngăn chơi lại Night 1 award clue 1 hai lần?**
-Đ: `tryAwardClue("signal1")` trong `state.js` kiểm tra `getDoneSignal1()` trước. Nếu cờ đã được set trong localStorage, hàm trả về `false` ngay mà không chỉnh state nào. Cùng pattern idempotent áp dụng cho cả 4 milestone.
-
-**H: Hidden thread có thể tìm trong cả Notes và Browser. Làm sao bạn đảm bảo clue 3 chỉ award một lần?**
-Đ: Cả `renderApp("notes")` và `renderApp("browser")` đều gọi `tryAwardClue("hidden")`. Vì `tryAwardClue` là idempotent — nó kiểm tra cờ `doneHidden` trước — award kích hoạt ở app đầu tiên player mở. Nếu sau đó mở app kia, thread đã hiển thị ở trạng thái mở rộng (vì `getDoneHidden()` trả về `true`), nhưng không có clue thứ hai nào được award.
-
-**H: `normalizeDialInput` hoạt động như thế nào và tại sao quan trọng?**
-Đ: Nó áp dụng `.replace(/\D/g, "")` để loại bỏ mọi ký tự không phải số. Điều này có nghĩa player có thể nhập "0427 318 247" (có khoảng trắng) hoặc "0427-318-247" và vẫn khớp với `NOTE_PHONE_DIGITS = "0427318247"`. Không có chuẩn hoá này, bất kỳ biến thể định dạng nào sẽ fail thầm lặng.
-
-**H: Tại sao `signal3` đã có trong state.js nếu Night 3 chưa được build?**
-Đ: Hệ thống milestone được thiết kế để mỗi night thêm một entry mà không thay đổi code hiện có. Stub `signal3` bây giờ có nghĩa khi Night 3 được build, `tryAwardClue("signal3")` và `resetGame()` đã xử lý đúng. Nó cũng có nghĩa comment "bao gồm tất cả bốn milestone" là chính xác trong buổi thuyết trình Tuần 9 — kiến trúc hiển thị ngay cả khi nội dung chưa có.
-
-**H: `getFinalWords()` được dùng để làm gì?**
-Đ: Nó trả về cụm từ đầu tiên được lưu bởi free-text input của player ở Night 2, hoặc fallback "still here". Ending page gọi `SignalLostState.getFinalWords()` để phản chiếu lại lời của player — một payoff narrative nơi game nhớ lời player nói và dùng nó trong ending. `ending.js` tham chiếu hàm này.
-
-**H: Chat runner hoạt động như thế nào?**
-Đ: `SignalLostChat.runScript(steps, opts)` nhận mảng step object và thực thi tuần tự. Unknown step hiển thị typing indicator trong delay ngẫu nhiên (scale bởi `getDelayMul()`), rồi append bubble và chuyển sang step tiếp theo. Choice step render nút; khi chọn một cái, lựa chọn echo thành player bubble, trust được cập nhật, nút bị xoá, và step tiếp theo bắt đầu. Engine không bao giờ được viết lại per-night — chỉ script array và pacing multiplier thay đổi.
-
-**H: Tại sao dùng canvas cho signal puzzle thay vì CSS transition hoặc hoán đổi ảnh?**
-Đ: Canvas cho phép kiểm soát chính xác thời gian thực pixel blending — lớp noise có thể được vẽ ở bất kỳ opacity nào trong một lần gọi `drawImage`, và reveal mượt mà ở bất kỳ vị trí slider nào. Hoán đổi ảnh sẽ hiển thị transition nhị phân (nhiễu → rõ). CSS opacity fade sẽ không blend hai lớp. Phương pháp canvas thú vị hơn về kỹ thuật và thematic hơn với ý tưởng "điều chỉnh tín hiệu".
+**H: Tại sao dùng ending-shell.html thay vì ba file ending riêng?**
+Đ: Shell duy nhất đảm bảo `stateNight3Extend.js` và `audioNight3Extend.js` luôn được load trước khi ending render. Nếu dùng ba file riêng, mỗi file phải tự load đủ script. Shell cũng dễ dẫn link hơn: một URL duy nhất với `?outcome=`.
 
 ---
 
-### Tiến trình / Quy trình
+## 24. Những tuyên bố đã xác nhận (dự án hoàn chỉnh)
 
-**H: Dự án được cấu trúc thế nào và tại sao vanilla JS?**
-Đ: Ba night là các trang HTML riêng biệt chia sẻ cùng module JS và file CSS. Không build tool, không bundler, không framework. Điều này giữ demo đáng tin (mở file, nó hoạt động), giữ code có thể đọc trong quá trình review, và thể hiện kiến thức browser API trực tiếp.
-
-**H: Bước tiếp theo sau feedback Tuần 9 là gì?**
-Đ: Night 3 — heartbeat puzzle, timed chat, word bank. Rồi routing ending: ba con đường (SIGNAL FOUND / NOT YET / STATIC) dựa trên trust và clue cuối cùng. Đánh bóng cuối cùng qua tất cả các night.
-
----
-
-## 6. Những tuyên bố đã xác nhận ở Tuần 9
-
-- Night 1 loop hoàn chỉnh: prologue → animation wakeup → 5 vật thể trực quan + lightbox → dial pad → chat với Unknown → canvas puzzle
-- Night 2 loop hoàn chỉnh: chuyển cảnh mi mắt với chữ interstitial → apps (4) → memory drag → chat → free-text → hidden thread
-- Chat engine tái sử dụng qua cả hai night
-- Hệ thống state 4-milestone idempotent (signal1, memory, hidden, signal3 stub)
-- Trust, clue, và phrase array liên tục trong localStorage
-- Bug CSS specificity được chẩn đoán và giải quyết trong production code
-- Hệ thống animation mi mắt với hai hành vi khác biệt cho Night 1 và Night 2
+- Prologue → Night 1 loop → Night 2 loop → Night 3 loop đầy đủ
+- Hệ thống state 4-milestone idempotent qua tất cả các trang
+- Dial decoy mechanic: số sai lần đầu, rung, rồi số đúng
+- Chat engine tái sử dụng (Night 1 / 2 / 3, delay mul khác nhau)
+- Three-way ending routing với logic trust + clue
+- NOT YET 2-round mechanism
+- Word bank câu cuối phản chiếu trong ending FOUND
+- Hidden thread là điều kiện cổng vào Night 3
+- Game frame 1200px 16:9 centered trên tất cả trang
+- Canvas decode (Night 1) và canvas heartbeat (Night 3) cùng module
+- CSS specificity bug phát hiện và giải quyết trong production code
+- Tất cả dấu "—" đã được thay bằng "." hoặc "," trong copy hiển thị
 
 ---
 
-## 7. Kế hoạch cho Tuần 11
-
-- Night 3: heartbeat canvas puzzle, timed chat, word bank interaction
-- Ending router: ngưỡng trust + clue count → ba ending path
-- Trang ending SIGNAL FOUND, NOT YET, STATIC với payoff narrative
-- `tryAwardClue("signal3")` được nối với hoàn thành Night 3
-- `getFinalWords()` và `getPhrases()` được dùng trong văn bản ending
+*Tài liệu phản ánh trạng thái code tại signal-9/ tính đến 20/05/2026.*

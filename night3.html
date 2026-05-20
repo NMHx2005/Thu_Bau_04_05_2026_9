@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGNAL LOST. Night 3</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/phone.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/night.css" />
+    <link rel="stylesheet" href="css/game-frame.css" />
+    <style>
+      .n3-section {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+      }
+      .n3-section.night-hidden {
+        display: none !important;
+      }
+      .hb-wrap {
+        padding: 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .timer-bar {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+        color: #9898b0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+      }
+      .word-bank {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+      }
+      .word-token {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(108, 99, 255, 0.45);
+        background: rgba(37, 37, 66, 0.85);
+        color: #e8e8f0;
+        cursor: pointer;
+        font-size: 0.75rem;
+      }
+      .word-built {
+        min-height: 2.5rem;
+        margin: 0 12px 12px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        color: #e8e8f0;
+        font-size: 0.8rem;
+      }
+      .fin-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        background: #000;
+        color: #e8e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        text-align: center;
+        font-family: "Courier New", monospace;
+      }
+      .fin-overlay.night-hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="night-bedroom-page page-stage">
+    <div class="phone-frame">
+      <div class="phone-screen" id="phoneScreen3">
+        <header class="phone-status">
+          <span class="phone-status__time">2:47 AM</span>
+          <span class="phone-status__battery"><span class="phone-status__battery-level"></span></span>
+        </header>
+        <div class="chat-header">
+          <div class="chat-header__avatar"></div>
+          <div class="chat-header__name" id="contactName">Unknown</div>
+        </div>
+
+        <div class="n3-section" id="secHeartbeat">
+          <div class="hb-wrap">
+            <p style="font-size: 0.75rem; color: #9898b0; margin: 0 0 8px">Heartbeat trace. Hold the line.</p>
+            <div class="signal-canvas-wrap" style="flex: 1; min-height: 200px">
+              <canvas id="hbCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="n3-section night-hidden" id="secTimed">
+          <div class="timer-bar">
+            <span>Window</span>
+            <span id="timerVal">20</span>s
+          </div>
+          <div class="chat-log" id="chatLog3"></div>
+          <footer class="chat-choices" id="chatChoices3"></footer>
+        </div>
+
+        <div class="n3-section night-hidden" id="secReveal">
+          <div class="chat-log" id="chatLogReveal"></div>
+          <footer class="chat-choices" id="chatChoicesReveal" aria-hidden="true"></footer>
+        </div>
+
+        <div class="n3-section night-hidden" id="secWords">
+          <p style="padding: 0 14px; font-size: 0.75rem; color: #9898b0">Assemble what you needed to say.</p>
+          <div class="word-built" id="wordBuilt"></div>
+          <div class="word-bank" id="wordBank"></div>
+          <button type="button" class="explore-cta" style="position: static; transform: none; margin: 8px auto 16px" id="btnWordsDone">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="finOverlay" class="fin-overlay night-hidden">
+      <p id="finLine" style="max-width: 28rem; line-height: 1.6"></p>
+      <button type="button" class="explore-cta" style="position: static; transform: none; margin-top: 28px" id="btnRouteEnding">
+        Continue
+      </button>
+    </div>
+
+    <script src="js/gameFrame.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/stateNight3Extend.js"></script>
+    <script>
+      (function () {
+        var S = window.SignalLostState;
+        if (!S || !S.canEnterNight3 || !S.canEnterNight3()) {
+          window.location.replace("night2.html");
+        }
+      })();
+    </script>
+    <script src="js/audio.js"></script>
+    <script src="js/audioNight3Extend.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/signalPuzzle.js"></script>
+    <script src="js/night3.js"></script>
+  </body>
+</html>

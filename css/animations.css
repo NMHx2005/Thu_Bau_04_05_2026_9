@@ -80,3 +80,29 @@
     opacity: 0.7;
   }
 }
+
+@keyframes dial-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-7px) rotate(-0.6deg);
+  }
+  30% {
+    transform: translateX(6px) rotate(0.5deg);
+  }
+  45% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+.dial-pad.dial-shake {
+  animation: dial-shake 0.52s ease;
+}

@@ -14,26 +14,28 @@
   var dialBuf = "";
   var rainCtl = null;
   var decodeCtl = null;
+  var STORAGE_DIAL_DECOY = "signalLost_dialDecoyPassed";
+  var decoyDigits = "";
 
   var LORE = {
     laptop: {
       title: "The Unsent Draft",
-      text: "A half-written unsent message — cursor still blinking. The player has been trying to say something and could not finish it.",
+      text: "A half-written unsent message. Cursor still blinking. The player has been trying to say something and could not finish it.",
       img: "assets/images/night1/obj_laptop.png",
     },
     window: {
       title: "No Reflection",
-      text: "Rain on the glass, but no reflection. A planted clue — most players read it as an art style choice on first playthrough and only catch it on replay.",
+      text: "Rain on the glass, but no reflection. A planted clue. Most players read it as an art style choice on first playthrough and only catch it on replay.",
       img: "assets/images/night1/obj_window.png",
     },
     note: {
       title: "The Number",
-      text: "A handwritten phone number, slightly smudged. 0427 318 247. This is the number the player will dial.",
+      text: "A handwritten phone number, slightly smudged. 0427 318 247. A small symbol in the corner: ▣.",
       img: "assets/images/night1/obj_note.png",
     },
     photo: {
       title: "The Photograph",
-      text: "A blurred image of a person. Warm frame. The face is almost recognisable — but not quite.",
+      text: "A blurred image of a person. Warm frame. The face is almost recognisable, but not quite.",
       img: "assets/images/night1/obj_photo.png",
     },
     coat: {
@@ -167,6 +169,73 @@
     });
   }
 
+  function normalizeDial(s) {
+    return (s || "").replace(/\D/g, "");
+  }
+
+  function formatPhoneDigits(digits) {
+    return digits.length === 10
+      ? digits.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3")
+      : digits;
+  }
+
+  function buildDecoyDigits(correct) {
+    if (!correct || correct.length < 1) return correct;
+    var last = correct.length - 1;
+    var n = (parseInt(correct.charAt(last), 10) + 1) % 10;
+    return correct.slice(0, last) + String(n);
+  }
+
+  function dialDecoyPassed() {
+    return sessionStorage.getItem(STORAGE_DIAL_DECOY) === "1";
+  }
+
+  function setDialDecoyPassed() {
+    sessionStorage.setItem(STORAGE_DIAL_DECOY, "1");
+  }
+
+  function setNoteHintDigits(digits) {
+    $("noteHint").textContent = formatPhoneDigits(digits);
+  }
+
+  function shakeDialPad() {
+    var pad = document.querySelector("#phase-dial .dial-pad");
+    if (!pad) return;
+    pad.classList.remove("dial-shake");
+    pad.offsetWidth;
+    pad.classList.add("dial-shake");
+    pad.addEventListener(
+      "animationend",
+      function cleanup() {
+        pad.classList.remove("dial-shake");
+        pad.removeEventListener("animationend", cleanup);
+      },
+      { once: true }
+    );
+    if (navigator.vibrate) {
+      navigator.vibrate([40, 30, 40, 30, 55]);
+    }
+    if (window.SignalLostAudio) {
+      window.SignalLostAudio.playTone(110, 0.09, 0.14);
+      setTimeout(function () {
+        window.SignalLostAudio.playTone(85, 0.11, 0.1);
+      }, 90);
+    }
+  }
+
+  function onDecoyDialComplete() {
+    var correct =
+      window.SignalLostState && window.SignalLostState.NOTE_PHONE_DIGITS
+        ? window.SignalLostState.NOTE_PHONE_DIGITS
+        : "0427318247";
+    setDialDecoyPassed();
+    setNoteHintDigits(correct);
+    dialBuf = "";
+    renderDial();
+    shakeDialPad();
+    showLore("Wrong line. The handset trembles. Read the note again, then dial.");
+  }
+
   function renderDial() {
     $("dialDisplay").textContent = dialBuf || " ";
   }
@@ -189,7 +258,7 @@
         }
       }
     } else if (r === 1) {
-      showLore("Silence. Not empty—full, like someone left the line open and walked away.");
+      showLore("Silence. Not empty, full, like someone left the line open and walked away.");
     } else {
       showLore("Voicemail clicks on: a voice you almost recognise says only, “Later.” Then beep.");
       if (window.SignalLostAudio) window.SignalLostAudio.playTone(300, 0.2, 0.08);
@@ -214,10 +283,13 @@
       renderDial();
     });
     $("dialCall").addEventListener("click", function () {
-      if (window.SignalLostState && window.SignalLostState.isCorrectNoteNumber(dialBuf)) {
+      var entered = normalizeDial(dialBuf);
+      if (window.SignalLostState && window.SignalLostState.isCorrectNoteNumber(entered)) {
         $("phase-dial").classList.add("night-hidden");
         $("phase-phone").classList.remove("night-hidden");
         startNight1Chat();
+      } else if (!dialDecoyPassed() && entered === decoyDigits) {
+        onDecoyDialComplete();
       } else {
         wrongNumberResponse();
       }
@@ -230,7 +302,7 @@
     var choices = $("chatChoices");
     var script = [
       { type: "unknown", text: "I've been waiting for you to call." },
-      { type: "unknown", text: "You left something behind. Not an object—a sentence you never finished." },
+      { type: "unknown", text: "You left something behind. Not an object, a sentence you never finished." },
       {
         type: "choices",
         options: [
@@ -255,7 +327,7 @@
     if (visited.coat) {
       script.push({
         type: "unknown",
-        text: "You already touched the coat — I’m not guessing your room. I’m reading what you carried out of it.",
+        text: "You already touched the coat. I’m not guessing your room. I’m reading what you carried out of it.",
       });
     }
     script.push(
@@ -273,9 +345,9 @@
       },
       {
         type: "unknown",
-        text: "Glass without a reflection is honesty with nowhere to bounce — only the room behind you, softer than it should be.",
+        text: "Glass without a reflection is honesty with nowhere to bounce, only the room behind you, softer than it should be.",
       },
-      { type: "unknown", text: "I'm sending you a picture. Not what it is—what it felt like when you were last somewhere else." }
+      { type: "unknown", text: "I'm sending you a picture. Not what it is, what it felt like when you were last somewhere else." }
     );
 
     if (window.SignalLostAudio) window.SignalLostAudio.setNight(1);
@@ -355,9 +427,12 @@
       rainCtl = window.SignalLostAudio.startRainLoop();
     }
     var digits = window.SignalLostState ? window.SignalLostState.NOTE_PHONE_DIGITS : "0427318247";
-    var formatted =
-      digits.length === 10 ? digits.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3") : digits;
-    $("noteHint").textContent = formatted;
+    decoyDigits = buildDecoyDigits(digits);
+    if (dialDecoyPassed()) {
+      setNoteHintDigits(digits);
+    } else {
+      setNoteHintDigits(decoyDigits);
+    }
     initExplore();
     initDial();
     runWakeupSequence();

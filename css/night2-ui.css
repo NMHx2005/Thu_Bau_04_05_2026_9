@@ -1,0 +1,143 @@
+/**
+ * SIGNAL LOST — Night 2 in-phone controls (back, continue, app chrome).
+ */
+
+.n2-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 72px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(37, 37, 66, 0.92);
+  color: #e8e8f0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.n2-nav-btn:hover,
+.n2-nav-btn:focus-visible {
+  border-color: rgba(108, 99, 255, 0.55);
+  background: rgba(108, 99, 255, 0.22);
+  color: #f4f4ff;
+  outline: none;
+}
+
+.n2-nav-btn:active {
+  transform: scale(0.97);
+}
+
+.n2-nav-btn__icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.n2-nav-btn--back {
+  padding-left: 12px;
+}
+
+.app-layer__top {
+  flex-shrink: 0;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-layer__title {
+  flex: 1;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(232, 232, 240, 0.85);
+}
+
+.app-layer__top-spacer {
+  flex: 0 0 72px;
+  width: 72px;
+}
+
+.n2-action-btn {
+  display: block;
+  width: min(100%, 280px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(108, 99, 255, 0.55);
+  background: linear-gradient(180deg, rgba(108, 99, 255, 0.32) 0%, rgba(108, 99, 255, 0.16) 100%);
+  color: #f0f0ff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 18px rgba(108, 99, 255, 0.18);
+}
+
+.n2-action-btn:hover:not(:disabled),
+.n2-action-btn:focus-visible:not(:disabled) {
+  border-color: rgba(140, 132, 255, 0.75);
+  background: linear-gradient(180deg, rgba(108, 99, 255, 0.42) 0%, rgba(108, 99, 255, 0.22) 100%);
+  box-shadow: 0 6px 22px rgba(108, 99, 255, 0.28);
+  outline: none;
+}
+
+.n2-action-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.n2-action-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+  box-shadow: none;
+}
+
+#phase-apps .phone-screen > .n2-action-btn,
+#phase-memory .n2-action-btn {
+  flex-shrink: 0;
+}
+
+/* In-app text actions (thread toggles) — not dial-pad blocks */
+.app-body .n2-link-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #9898b0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.app-body .n2-link-btn:hover,
+.app-body .n2-link-btn:focus-visible {
+  color: #6c63ff;
+  outline: none;
+}
+
+.app-body .n2-link-btn--accent {
+  color: #6c63ff;
+}

@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SIGNAL LOST — Prologue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SIGNAL LOST. Prologue</title>
     <link rel="stylesheet" href="css/prologue.css" />
+    <link rel="stylesheet" href="css/game-frame.css" />
   </head>
   <body class="prologue-root" id="prologueRoot">
     <section class="prologue-slide is-active" data-slide="0" aria-label="Slide 1">
@@ -21,13 +22,14 @@
     </section>
     <p class="prologue-hint">click anywhere to continue</p>
 
+    <script src="js/gameFrame.js"></script>
     <script src="js/state.js"></script>
     <script>
       (function () {
         var slides = [
           "Dark. Then: a rectangle of light.",
           "Something familiar wakes before you do. A rectangle of light in a room you cannot name.",
-          "The rain is wrong—too steady, too close. The phone does not care. It only waits.",
+          "The rain is wrong, too steady, too close. The phone does not care. It only waits.",
           "SIGNAL LOST",
         ];
         var root = document.getElementById("prologueRoot");

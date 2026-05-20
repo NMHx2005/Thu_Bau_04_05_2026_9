@@ -136,7 +136,7 @@
       ctx.stroke();
       ctx.fillStyle = "rgba(232,232,240,0.55)";
       ctx.font = "12px Courier New, monospace";
-      ctx.fillText("click the peaks — " + locks + "/" + locksNeeded, 12, 22);
+      ctx.fillText("click the peaks. " + locks + "/" + locksNeeded, 12, 22);
       phase += speed * 10;
       speed = Math.max(speedMin, speed * 0.9997);
       var now = performance.now();

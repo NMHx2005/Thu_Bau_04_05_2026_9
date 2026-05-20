@@ -32,7 +32,7 @@
 
     if (name === "photos") {
       body.innerHTML =
-        "<p>March 3rd — camera roll corrupted.</p>" +
+        "<p>March 3rd. Camera roll corrupted.</p>" +
         "<p><img src='assets/images/Bedroom blur.png' style='max-width:100%;border-radius:8px;opacity:0.45' alt=''/></p>" +
         "<p>Tap the blur. Nothing resolves completely.</p>";
       var im = body.querySelector("img");
@@ -58,9 +58,9 @@
         "<ul><li>return call</li><li>water plants</li><li>say it plainly</li></ul>" +
         "<p>\u201cI don\u2019t want to disappear mid-sentence.\u201d</p>" +
         "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0'/>" +
-        "<div id='hiddenThreadBtn' style='cursor:pointer;color:" +
-          (alreadyFound ? "#6c63ff" : "#9898b0") +
-          ";font-size:0.72rem;padding:6px 0;user-select:none'>" +
+        "<div id='hiddenThreadBtn' class='n2-link-btn" +
+          (alreadyFound ? " n2-link-btn--accent" : "") +
+          "'>" +
           (alreadyFound ? "\u25be" : "\u25b8") +
           " Drafts \u2014 3 unsent" +
           (!alreadyFound ? " <span style='color:#6c63ff;font-size:0.65rem'>[tap]</span>" : "") +
@@ -99,7 +99,7 @@
         btn.addEventListener("click", function () {
           thread.style.display = "block";
           btn.innerHTML = "\u25be Drafts \u2014 3 unsent";
-          btn.style.color = "#6c63ff";
+          btn.classList.add("n2-link-btn--accent");
           if (window.SignalLostState) {
             var awarded = window.SignalLostState.tryAwardClue("hidden");
             if (awarded && notice) {
@@ -119,37 +119,37 @@
         window.SignalLostState.getDoneHidden();
 
       body.innerHTML =
-        "<p>Search history — last day:</p>" +
+        "<p>Search history, last day:</p>" +
         "<ul>" +
           "<li>how late does the library close</li>" +
           "<li>park bench near east entrance</li>" +
           "<li>can you hear a phone ring through a door</li>" +
         "</ul>" +
         "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0'/>" +
-        "<div id='draftSyncBtn' style='cursor:pointer;color:" +
-          (alreadyFoundBrowser ? "#6c63ff" : "#9898b0") +
-          ";font-size:0.72rem;padding:6px 0;user-select:none'>" +
+        "<div id='draftSyncBtn' class='n2-link-btn" +
+          (alreadyFoundBrowser ? " n2-link-btn--accent" : "") +
+          "'>" +
           (alreadyFoundBrowser ? "▾" : "▸") +
-          " Draft sync — 3 pending" +
+          " Draft sync, 3 pending" +
           (!alreadyFoundBrowser ? " <span style='color:#6c63ff;font-size:0.65rem'>[sync]</span>" : "") +
         "</div>" +
         "<div id='draftSyncThread' style='display:" + (alreadyFoundBrowser ? "block" : "none") + ";margin-top:10px'>" +
           "<div style='text-align:right;margin-bottom:10px'>" +
-            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 — 11:47 PM</span>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2, 11:47 PM</span>" +
             "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
               "I should have said something at the entrance. You were right there." +
             "</span>" +
             "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Send failed</span>" +
           "</div>" +
           "<div style='text-align:right;margin-bottom:10px'>" +
-            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2 — 11:52 PM</span>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 2, 11:52 PM</span>" +
             "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
               "I kept the number. Deleted it three times. Kept it anyway." +
             "</span>" +
             "<span style='display:block;font-size:0.6rem;color:#e05555;margin-top:3px'>Send failed</span>" +
           "</div>" +
           "<div style='text-align:right;margin-bottom:14px'>" +
-            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 3 — 12:03 AM</span>" +
+            "<span style='font-size:0.6rem;color:#9898b0;display:block;margin-bottom:3px'>Mar 3, 12:03 AM</span>" +
             "<span style='display:inline-block;background:rgba(108,99,255,0.25);border:1px solid rgba(108,99,255,0.35);border-radius:12px 12px 2px 12px;padding:7px 11px;font-size:0.75rem;max-width:85%'>" +
               "I don’t think you’ll check this. I think that’s why I’m sending it." +
             "</span>" +
@@ -166,8 +166,8 @@
       if (syncBtn && syncThread && !alreadyFoundBrowser) {
         syncBtn.addEventListener("click", function () {
           syncThread.style.display = "block";
-          syncBtn.innerHTML = "▾ Draft sync — 3 pending";
-          syncBtn.style.color = "#6c63ff";
+          syncBtn.innerHTML = "▾ Draft sync, 3 pending";
+          syncBtn.classList.add("n2-link-btn--accent");
           if (window.SignalLostState) {
             var awarded = window.SignalLostState.tryAwardClue("hidden");
             if (awarded && syncNotice) {
@@ -293,7 +293,7 @@
     var part1 = [
       {
         type: "unknown",
-        text: "You went looking for proof in the wrong places. The receipts are human — timestamps, drafts, the quiet places you pretend not to check.",
+        text: "You went looking for proof in the wrong places. The receipts are human: timestamps, drafts, the quiet places you pretend not to check.",
       },
       {
         type: "choices",
@@ -305,7 +305,7 @@
       },
       {
         type: "unknown",
-        text: "The library closed. You stayed anyway. That’s not curiosity — it’s hunger.",
+        text: "The library closed. You stayed anyway. That’s not curiosity, it’s hunger.",
       },
       { type: "unknown", text: "Type what you would have sent if your hands weren’t shaking." },
     ];
@@ -357,7 +357,7 @@
         { type: "wait", ms: 450 },
         {
           type: "unknown",
-          text: "That’s enough for now. The rest is still loading — not from the network. From you.",
+          text: "That’s enough for now. The rest is still loading, not from the network. From you.",
         },
         { type: "wait", ms: 500 },
         {

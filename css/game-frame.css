@@ -1,0 +1,315 @@
+/**
+ * SIGNAL LOST — centered landscape frame (~1200px wide).
+ * Outer = night sky only; inner = all game art (unchanged look).
+ */
+
+:root {
+  --game-frame-w: 1200px;
+  --game-frame-ratio: 16 / 9;
+  --game-frame-radius: 14px;
+  --game-stage-bg: #050508;
+  --game-stage-bg-mid: #0e0e18;
+}
+
+html.game-framed,
+html.game-framed body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+html.game-framed body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px))
+    max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+  box-sizing: border-box;
+  background: radial-gradient(
+    ellipse 100% 70% at 50% 20%,
+    var(--game-stage-bg-mid) 0%,
+    var(--game-stage-bg) 55%,
+    #020204 100%
+  );
+}
+
+html.game-framed body.night-bedroom-page::before,
+html.game-framed body.night-bedroom-page::after {
+  content: none !important;
+  display: none !important;
+}
+
+.game-viewport {
+  width: min(var(--game-frame-w), calc(100vw - 24px));
+  aspect-ratio: var(--game-frame-ratio);
+  max-height: calc(100dvh - 24px);
+  height: auto;
+  flex: 0 0 auto;
+  position: relative;
+  margin: 0 auto;
+  border-radius: var(--game-frame-radius);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 24px 56px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  background: #000;
+}
+
+.game-viewport__inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;
+  container-name: game-inner;
+}
+
+/* Bedroom background inside frame only */
+html.game-framed .game-viewport__inner.night-bedroom-page {
+  background-color: var(--bg, #1a1a2e);
+}
+
+html.game-framed .game-viewport__inner.night-bedroom-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #1a1a2e url("../assets/images/Bedroom.png") center / cover no-repeat;
+  filter: blur(5px) brightness(0.62);
+  transform: scale(1.03);
+  pointer-events: none;
+}
+
+html.game-framed .game-viewport__inner.night-bedroom-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 42%,
+    rgba(26, 26, 46, 0.12) 0%,
+    rgba(26, 26, 46, 0.5) 62%,
+    rgba(10, 10, 18, 0.72) 100%
+  );
+}
+
+/* Hidden phases must beat phase layout (was showing empty phone on Night 1 load) */
+html.game-framed .game-viewport__inner .night-hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Game phases stack in the same rectangle (fix: no longer squashed at top) */
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-explore,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-dial,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-phone,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-apps,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-memory,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-chat {
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  margin: 0;
+}
+
+/* Night 1 explore — fill frame; override 100vh that broke layout in short frame */
+html.game-framed .game-viewport__inner #phase-explore {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+html.game-framed .game-viewport__inner #phase-explore .explore-scene {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100%;
+}
+
+html.game-framed .game-viewport__inner #phase-explore .explore-inner {
+  position: absolute;
+  inset: 0;
+  min-height: 0 !important;
+  height: 100% !important;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+}
+
+html.game-framed .game-viewport__inner #phase-explore .explore-cta {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0 auto 18px;
+  z-index: 6;
+}
+
+html.game-framed .game-viewport__inner .dial-wrap {
+  min-height: 100% !important;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Phone phases: fit inside frame height (only when visible) */
+html.game-framed .game-viewport__inner #phase-phone:not(.night-hidden),
+html.game-framed .game-viewport__inner #phase-apps:not(.night-hidden),
+html.game-framed .game-viewport__inner #phase-memory:not(.night-hidden),
+html.game-framed .game-viewport__inner #phase-chat:not(.night-hidden),
+html.game-framed .game-viewport__inner.night-bedroom-page.page-stage {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+html.game-framed .game-viewport__inner .page-stage {
+  min-height: 100% !important;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+html.game-framed .game-viewport__inner .phone-frame {
+  width: min(var(--phone-width, 390px), 96%);
+  max-width: var(--phone-width, 390px);
+  max-height: 100%;
+  flex: 0 1 auto;
+  min-height: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  transform-origin: center center;
+}
+
+html.game-framed .game-viewport__inner .phone-screen {
+  min-height: 0 !important;
+  max-height: min(96cqh, 640px) !important;
+  height: auto;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+html.game-framed .game-viewport__inner .chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+html.game-framed .game-viewport__inner .chat-choices {
+  flex-shrink: 0;
+}
+
+html.game-framed .game-viewport__inner .signal-panel {
+  flex-shrink: 0;
+  max-height: 42cqh;
+  overflow-y: auto;
+}
+
+html.game-framed .game-viewport__inner .lore-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* Overlays / effects — clip to frame */
+html.game-framed .game-viewport__inner #finOverlay.fin-overlay,
+html.game-framed .game-viewport__inner #objLightbox,
+html.game-framed .game-viewport__inner #loreHost,
+html.game-framed .game-viewport__inner #eyeLidTop,
+html.game-framed .game-viewport__inner #eyeLidBottom,
+html.game-framed .game-viewport__inner #transitionText {
+  position: absolute !important;
+}
+
+html.game-framed .game-viewport__inner #finOverlay.fin-overlay {
+  z-index: 80;
+}
+
+html.game-framed .game-viewport__inner #objLightbox {
+  z-index: 70;
+}
+
+html.game-framed .game-viewport__inner #loreHost {
+  position: absolute !important;
+  inset: 0;
+  z-index: 65;
+  pointer-events: none;
+}
+
+html.game-framed .game-viewport__inner #loreHost:not(:empty) {
+  pointer-events: auto;
+}
+
+html.game-framed .game-viewport__inner #eyeLidTop,
+html.game-framed .game-viewport__inner #eyeLidBottom {
+  z-index: 90;
+  height: 51%;
+}
+
+/* Prologue */
+html.game-framed .game-viewport__inner.prologue-root {
+  background: #000;
+  color: #e8e8f0;
+  cursor: pointer;
+}
+
+html.game-framed .game-viewport__inner .prologue-slide {
+  position: absolute;
+  inset: 0;
+}
+
+html.game-framed .game-viewport__inner .prologue-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20px;
+}
+
+/* Endings */
+html.game-framed .game-viewport__inner.theme-found,
+html.game-framed .game-viewport__inner.theme-static,
+html.game-framed .game-viewport__inner.theme-notyet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+html.game-framed .game-viewport__inner.theme-found {
+  background: #000;
+}
+
+html.game-framed .game-viewport__inner.theme-static {
+  background: #0a0a12;
+}
+
+html.game-framed .game-viewport__inner.theme-notyet {
+  background: #1a1a2e;
+}
+
+html.game-framed .game-viewport__inner .box {
+  max-height: 100%;
+  overflow-y: auto;
+}

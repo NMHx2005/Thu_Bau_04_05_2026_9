@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIGNAL FOUND</title>
     <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/game-frame.css" />
     <style>
       body {
         margin: 0;
@@ -36,6 +37,7 @@
       <p class="sub" id="line2">they'll hear it. somehow.</p>
       <p class="sub" id="finalEcho"></p>
     </div>
+    <script src="js/gameFrame.js"></script>
     <script src="js/state.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/ending.js"></script>
@@ -43,7 +45,7 @@
       (function () {
         var el = document.getElementById("stage");
         document.getElementById("line1").textContent =
-          window.SignalLostEnding.readFinalLine() || "—";
+          window.SignalLostEnding.readFinalLine() || "...";
         document.getElementById("finalEcho").textContent = "I love you. Call me back when you can.";
         if (window.SignalLostAudio) {
           window.SignalLostAudio.resume();

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGNAL LOST. Continue to Night 3</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/game-frame.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #1a1a2e;
+        color: #e8e8f0;
+        font-family: "Courier New", monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+      }
+      .box {
+        max-width: 28rem;
+        line-height: 1.6;
+        text-align: center;
+      }
+      .box a {
+        color: #6c63ff;
+      }
+      .box p.hint {
+        color: #9898b0;
+        font-size: 0.85rem;
+      }
+      .box button,
+      .box a.btn {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(108, 99, 255, 0.45);
+        background: rgba(108, 99, 255, 0.15);
+        color: #e8e8f0;
+        text-decoration: none;
+        font-family: Arial, sans-serif;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .box button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <p id="status">Checking save…</p>
+      <p class="hint" id="hint"></p>
+      <p class="hint">
+        <a href="night2.html">Back to Night 2</a>
+        ·
+        <a href="index.html">Prologue (reset)</a>
+      </p>
+      <a class="btn" id="goNight3" href="night3.html" style="display: none">Enter Night 3</a>
+    </div>
+    <script src="js/gameFrame.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/stateNight3Extend.js"></script>
+    <script>
+      (function () {
+        var S = window.SignalLostState;
+        var status = document.getElementById("status");
+        var hint = document.getElementById("hint");
+        var btn = document.getElementById("goNight3");
+
+        if (!S) {
+          status.textContent = "State module missing.";
+          return;
+        }
+
+        if (S.canEnterNight3 && S.canEnterNight3()) {
+          status.textContent = "Hidden thread found. Night 3 is ready.";
+          hint.textContent =
+            "Open Notes or Browser in Night 2 and expand the unsent drafts if you have not already.";
+          btn.style.display = "inline-block";
+          return;
+        }
+
+        status.textContent = "Night 3 is locked.";
+        hint.textContent =
+          "In Night 2, open Notes or Browser and reveal the unsent draft thread (clue 3) before continuing.";
+        btn.style.display = "none";
+      })();
+    </script>
+  </body>
+</html>
