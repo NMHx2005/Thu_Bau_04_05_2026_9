@@ -99,38 +99,38 @@ body.night-bedroom-page>*:not(#finOverlay):not(#eyeLidTop):not(#eyeLidBottom):no
 }
 
 .hotspot--laptop {
-  left: 9%;
-  top: 43%;
+  left: 4%;
+  top: 45%;
   width: 25%;
   height: 30%;
 }
 
 .hotspot--window {
-  left: 3%;
+  left: 1%;
   top: 7%;
   width: 18%;
   height: 25%;
 }
 
 .hotspot--note {
-  left: 28%;
-  top: 73%;
+  left: 2%;
+  top: 75%;
   width: 10%;
   height: 12%;
 }
 
 .hotspot--photo {
-  left: 75%;
+  left: 72%;
   top: 5%;
   width: 17%;
   height: 20%;
 }
 
 .hotspot--coat {
-  left: 65%;
-  top: 29%;
+  left: 64%;
+  top: 30%;
   width: 18%;
-  height: 66%;
+  height: 70%;
 }
 
 /* Small or portrait objects use contain so details aren't cropped */
