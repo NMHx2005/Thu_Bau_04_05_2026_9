@@ -77,6 +77,7 @@
     var textEl = $("objLightbox__text");
 
     imgEl.src = lore.img;
+    imgEl.dataset.object = id;
     titleEl.textContent = lore.title;
     textEl.textContent = lore.text;
 
@@ -130,8 +131,11 @@
         setTimeout(function () {
           var btn = document.querySelector(".hotspot--" + id);
           if (!btn) return;
-          var img = btn.querySelector(".hotspot-obj");
-          if (img) img.classList.add("visible");
+          var dot = btn.querySelector(".hotspot-dot");
+          if (dot) {
+            dot.style.animationDelay = i * 0.15 + "s";
+            dot.classList.add("visible");
+          }
         }, i * STAGGER_MS);
       });
     }, BLINK_MS);
@@ -147,6 +151,7 @@
       btn.addEventListener("click", function () {
         var id = btn.getAttribute("data-id");
         visited[id] = true;
+        btn.classList.add("is-visited");
         showLightbox(id, btn);
         if (window.SignalLostAudio) window.SignalLostAudio.playTypingTick();
         updateExploreCta();
