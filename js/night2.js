@@ -1,7 +1,5 @@
 /**
- * SIGNAL LOST — Week 9 (≈50%): Night 2
- * Includes: apps exploration + memory sortable + chat + one free-text reply + hidden thread (clue 3).
- * Excludes (Week 11): Night 3, endings.
+ * SIGNAL LOST — Night 2: apps, memory, chat, free-text, hidden thread → Night 3 when ready.
  */
 (function () {
   "use strict";
@@ -346,12 +344,43 @@
 
       setTimeout(function () {
         window.SignalLostChat.appendBubble(byId("chatLog2"), "unknown", reply);
-        runWeek9End();
+        runNight2End();
       }, 650);
     });
   }
 
-  function runWeek9End() {
+  function setupNight2Exit() {
+    var S = window.SignalLostState;
+    var ban = byId("appsBanner");
+    var btn = byId("btnToMemory");
+    ban.classList.remove("night-hidden");
+    setPhase("apps");
+    btn.disabled = false;
+
+    if (S && S.getDoneHidden && S.getDoneHidden()) {
+      ban.textContent = "The buried thread is open. Night 3 is on the line.";
+      btn.textContent = "Continue to Night 3";
+      btn.onclick = function () {
+        window.location.href = "night3.html";
+      };
+      return;
+    }
+
+    ban.textContent =
+      "Night 3 is locked. Open Notes or Browser and expand the unsent drafts (Drafts / Draft sync).";
+    btn.textContent = "Continue";
+    btn.onclick = function () {
+      setPhase("apps");
+      if (S && S.getDoneHidden && S.getDoneHidden()) {
+        setupNight2Exit();
+        return;
+      }
+      ban.textContent =
+        "Still locked. In Notes or Browser, tap Drafts / Draft sync to reveal the thread, then press Continue.";
+    };
+  }
+
+  function runNight2End() {
     window.SignalLostChat.runScript(
       [
         { type: "wait", ms: 450 },
@@ -362,7 +391,7 @@
         { type: "wait", ms: 500 },
         {
           type: "unknown",
-          text: "Week 9 checkpoint complete.",
+          text: "The line changes when you’re ready to hear it without proof.",
         },
       ],
       {
@@ -371,17 +400,7 @@
         getDelayMul: function () {
           return 1.12;
         },
-        onComplete: function () {
-          var ban = byId("appsBanner");
-          ban.classList.remove("night-hidden");
-          ban.textContent = "Week 9 (≈50%) ends here. Replay from Prologue or Night 1 for the demo.";
-          setPhase("apps");
-          byId("btnToMemory").textContent = "Replay Night 1";
-          byId("btnToMemory").disabled = false;
-          byId("btnToMemory").onclick = function () {
-            window.location.href = "night1.html";
-          };
-        },
+        onComplete: setupNight2Exit,
       }
     );
   }

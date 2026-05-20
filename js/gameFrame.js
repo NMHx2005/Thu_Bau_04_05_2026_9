@@ -50,7 +50,7 @@
     for (i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var phase = frame.closest(
-        "#phase-phone, #phase-apps, #phase-memory, #phase-chat, .page-stage"
+        "#phase-phone, #phase-apps, #phase-memory, #phase-chat, #phase-night3"
       );
       if (!phase || phase.classList.contains("night-hidden")) {
         frame.style.transform = "";

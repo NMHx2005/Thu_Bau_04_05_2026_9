@@ -19,10 +19,17 @@
     return document.getElementById(id);
   }
 
+  function refitPhone() {
+    if (window.SignalLostFrame && window.SignalLostFrame.fitPhone) {
+      window.SignalLostFrame.fitPhone();
+    }
+  }
+
   function showOnly(sec) {
     ["secHeartbeat", "secTimed", "secReveal", "secWords"].forEach(function (id) {
       byId(id).classList.toggle("night-hidden", id !== sec);
     });
+    refitPhone();
   }
 
   function startSoftenLoop() {
@@ -185,6 +192,8 @@
     }
     startSoftenLoop();
     startHeartbeat();
+    refitPhone();
+    setTimeout(refitPhone, 150);
   }
 
   boot();

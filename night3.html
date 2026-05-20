@@ -9,74 +9,10 @@
     <link rel="stylesheet" href="css/animations.css" />
     <link rel="stylesheet" href="css/night.css" />
     <link rel="stylesheet" href="css/game-frame.css" />
-    <style>
-      .n3-section {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-height: 0;
-      }
-      .n3-section.night-hidden {
-        display: none !important;
-      }
-      .hb-wrap {
-        padding: 12px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .timer-bar {
-        padding: 8px 14px;
-        font-size: 0.75rem;
-        color: #9898b0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        display: flex;
-        justify-content: space-between;
-      }
-      .word-bank {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 12px;
-      }
-      .word-token {
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid rgba(108, 99, 255, 0.45);
-        background: rgba(37, 37, 66, 0.85);
-        color: #e8e8f0;
-        cursor: pointer;
-        font-size: 0.75rem;
-      }
-      .word-built {
-        min-height: 2.5rem;
-        margin: 0 12px 12px;
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px dashed rgba(255, 255, 255, 0.2);
-        color: #e8e8f0;
-        font-size: 0.8rem;
-      }
-      .fin-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 50;
-        background: #000;
-        color: #e8e8f0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 32px;
-        text-align: center;
-        font-family: "Courier New", monospace;
-      }
-      .fin-overlay.night-hidden {
-        display: none !important;
-      }
-    </style>
+    <link rel="stylesheet" href="css/night3.css" />
   </head>
-  <body class="night-bedroom-page page-stage">
+  <body class="night-bedroom-page">
+    <div id="phase-night3" class="page-stage">
     <div class="phone-frame">
       <div class="phone-screen" id="phoneScreen3">
         <header class="phone-status">
@@ -91,7 +27,7 @@
         <div class="n3-section" id="secHeartbeat">
           <div class="hb-wrap">
             <p style="font-size: 0.75rem; color: #9898b0; margin: 0 0 8px">Heartbeat trace. Hold the line.</p>
-            <div class="signal-canvas-wrap" style="flex: 1; min-height: 200px">
+            <div class="signal-canvas-wrap">
               <canvas id="hbCanvas"></canvas>
             </div>
           </div>
@@ -120,6 +56,7 @@
           </button>
         </div>
       </div>
+    </div>
     </div>
 
     <div id="finOverlay" class="fin-overlay night-hidden">

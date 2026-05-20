@@ -1,0 +1,126 @@
+/* Night 3 — phone shell layout (heartbeat, timed chat, words) */
+
+#phase-night3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+html.game-framed .game-viewport__inner #phase-night3 {
+  min-height: 0 !important;
+  height: 100%;
+  padding: 10px 12px;
+}
+
+#phase-night3 .phone-frame {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--phone-width);
+  max-height: min(85vh, 780px);
+}
+
+#phoneScreen3 {
+  display: flex;
+  flex-direction: column;
+  min-height: 0 !important;
+  max-height: 100%;
+  flex: 1 1 auto;
+}
+
+#phoneScreen3 .n3-section:not(.night-hidden) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#phoneScreen3 .hb-wrap {
+  padding: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#phoneScreen3 .signal-canvas-wrap {
+  flex: 1 1 auto;
+  min-height: 140px;
+  height: auto;
+  margin-bottom: 0;
+}
+
+#phoneScreen3 .chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.n3-section.night-hidden {
+  display: none !important;
+}
+
+.timer-bar {
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  color: #9898b0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+}
+
+.word-token {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(108, 99, 255, 0.45);
+  background: rgba(37, 37, 66, 0.85);
+  color: #e8e8f0;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.word-built {
+  min-height: 2.5rem;
+  margin: 0 12px 12px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: #e8e8f0;
+  font-size: 0.8rem;
+}
+
+.fin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  color: #e8e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  font-family: "Courier New", monospace;
+}
+
+.fin-overlay.night-hidden {
+  display: none !important;
+}
+
+html.game-framed .game-viewport__inner #finOverlay.fin-overlay {
+  position: absolute;
+  z-index: 80;
+}

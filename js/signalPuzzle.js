@@ -180,7 +180,12 @@
       }
     }
 
+    function onResize() {
+      if (!done) drawFrame();
+    }
+
     canvas.addEventListener("click", onClick);
+    window.addEventListener("resize", onResize);
     loop();
 
     return {
@@ -188,6 +193,7 @@
         done = true;
         cancelAnimationFrame(raf);
         canvas.removeEventListener("click", onClick);
+        window.removeEventListener("resize", onResize);
       },
     };
   }

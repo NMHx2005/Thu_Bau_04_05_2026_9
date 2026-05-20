@@ -140,7 +140,8 @@ html.game-framed .game-viewport__inner.night-bedroom-page > #phase-dial,
 html.game-framed .game-viewport__inner.night-bedroom-page > #phase-phone,
 html.game-framed .game-viewport__inner.night-bedroom-page > #phase-apps,
 html.game-framed .game-viewport__inner.night-bedroom-page > #phase-memory,
-html.game-framed .game-viewport__inner.night-bedroom-page > #phase-chat {
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-chat,
+html.game-framed .game-viewport__inner.night-bedroom-page > #phase-night3 {
   position: absolute !important;
   inset: 0;
   width: 100%;
@@ -191,7 +192,7 @@ html.game-framed .game-viewport__inner #phase-phone:not(.night-hidden),
 html.game-framed .game-viewport__inner #phase-apps:not(.night-hidden),
 html.game-framed .game-viewport__inner #phase-memory:not(.night-hidden),
 html.game-framed .game-viewport__inner #phase-chat:not(.night-hidden),
-html.game-framed .game-viewport__inner.night-bedroom-page.page-stage {
+html.game-framed .game-viewport__inner #phase-night3 {
   display: flex !important;
   flex-direction: column;
   align-items: center;
@@ -199,6 +200,7 @@ html.game-framed .game-viewport__inner.night-bedroom-page.page-stage {
   overflow: hidden;
   padding: 10px 12px;
   box-sizing: border-box;
+  min-height: 0 !important;
 }
 
 html.game-framed .game-viewport__inner .page-stage {
@@ -242,6 +244,29 @@ html.game-framed .game-viewport__inner .signal-panel {
   flex-shrink: 0;
   max-height: 42cqh;
   overflow-y: auto;
+}
+
+/* Night 3 — phone fills phase; avoid 680px clip + scale misalignment */
+html.game-framed .game-viewport__inner #phase-night3 .phone-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  width: min(var(--phone-width, 390px), 96%);
+  display: flex;
+  flex-direction: column;
+}
+
+html.game-framed .game-viewport__inner #phoneScreen3 {
+  min-height: 0 !important;
+  max-height: 100% !important;
+  height: 100%;
+  flex: 1 1 auto;
+}
+
+html.game-framed .game-viewport__inner #phoneScreen3 .signal-canvas-wrap {
+  flex: 1 1 auto;
+  min-height: 100px;
+  height: auto;
 }
 
 html.game-framed .game-viewport__inner .lore-overlay {
